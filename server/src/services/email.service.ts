@@ -21,14 +21,24 @@ const templates = {
   }
 };
 
+const resetTemplates = {
+  en: {
+    subject: "Your Password Reset Key",
+    title: "Password Reset Request",
+    body: "You requested a password reset. Use the following key to complete the process: {key}. This key will expire in 15 minutes.",
+  },
+  es: {
+    subject: "Tu Clave de Recuperación",
+    title: "Solicitud de Cambio de Contraseña",
+    body: "Has solicitado restablecer tu contraseña. Usa la siguiente clave para completar el proceso: {key}. Esta clave expirará en 15 minutos.",
+  }
+};
+
 export const sendWelcomeEmail = async ({ email, username, lang }: WelcomeEmailParams) => {
   const template = templates[lang] || templates.en;
   const content = template.body.replace('{username}', username);
   const title = template.title.replace('{username}', username);
 
-  // For production, you would configure a real transporter (SMTP, SendGrid, etc.)
-  // For this prototype, we will log to console to demonstrate the logic.
-  
   console.log(`
     --- MOCK EMAIL SENT ---
     To: ${email}
@@ -40,6 +50,21 @@ export const sendWelcomeEmail = async ({ email, username, lang }: WelcomeEmailPa
     ------------------------
   `);
 
-  // Mocking success
+  return true;
+};
+
+export const sendResetKeyEmail = async (email: string, key: string, lang: 'en' | 'es') => {
+  const template = resetTemplates[lang] || resetTemplates.en;
+  const content = template.body.replace('{key}', key);
+
+  console.log(`
+    --- MOCK RESET EMAIL SENT ---
+    To: ${email}
+    Subject: ${template.subject}
+    Content:
+    ${template.title}
+    ${content}
+    -----------------------------
+  `);
   return true;
 };

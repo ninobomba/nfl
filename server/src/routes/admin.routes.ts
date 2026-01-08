@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { simulateGame, clearSchedule, createMatchup, updateMatchup, deleteMatchup, getSettings, updateSetting, getUsers, toggleUserStatus, updateTeam } from '../controllers/admin.controller.js';
+import { simulateGame, clearSchedule, createMatchup, updateMatchup, deleteMatchup, getSettings, updateSetting, getUsers, toggleUserStatus, updateTeam, getAuditLogs } from '../controllers/admin.controller.js';
 import { authenticateToken, isAdmin } from '../middleware/auth.middleware.js';
 
 const router = Router();
@@ -18,5 +18,6 @@ router.post('/settings', updateSetting);
 router.get('/users', getUsers);
 router.post('/users/toggle-status', toggleUserStatus);
 router.post('/teams/update', updateTeam);
+router.get('/logs', getAuditLogs);
 
 export default router;

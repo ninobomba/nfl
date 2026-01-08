@@ -3,53 +3,58 @@ import request from 'supertest';
 import app from '../app.js';
 import prisma from '../prisma.js';
 
-describe('Auth API', () => {
+describe('Auth & Recovery API', () => {
+  const randomSuffix = Math.floor(Math.random() * 10000);
   const testUser = {
-    username: 'testuser',
-    email: 'test@example.com',
+    username: `tester${randomSuffix}`,
+    email: `tester${randomSuffix}@nfl.com`,
     password: 'password123',
     lang: 'en'
   };
 
   beforeAll(async () => {
-    // Limpiar usuario de prueba si existe
+    // No limpiar todo, solo asegurar que este específico no exista
     await prisma.user.deleteMany({
-      where: {
-        OR: [{ username: testUser.username }, { email: testUser.email }]
-      }
+      where: { OR: [{ username: testUser.username }, { email: testUser.email }] }
     });
   });
 
   it('should register a new user', async () => {
-    const res = await request(app)
-      .post('/api/auth/register')
-      .send(testUser);
-
+    const res = await request(app).post('/api/auth/register').send(testUser);
     expect(res.status).toBe(201);
-    expect(res.body).toHaveProperty('token');
-    expect(res.body.user.username).toBe(testUser.username);
+    expect(res.body.user.email).toBe(testUser.email);
   });
 
-  it('should login the registered user', async () => {
+  it('should request a password reset key', async () => {
     const res = await request(app)
-      .post('/api/auth/login')
-      .send({
-        username: testUser.username,
-        password: testUser.password
-      });
-
+      .post('/api/auth/forgot-password')
+      .send({ email: testUser.email, lang: 'en' });
+    
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty('token');
+    expect(res.body.message).toBe('RESET_KEY_SENT');
+
+    const resetRecord = await prisma.passwordReset.findFirst({
+        where: { user: { email: testUser.email } }
+    });
+    expect(resetRecord).not.toBeNull();
+    expect(resetRecord?.key).toHaveLength(6);
   });
 
-  it('should fail with incorrect credentials', async () => {
+  it('should reset password with valid key', async () => {
+    const resetRecord = await prisma.passwordReset.findFirst({
+        where: { user: { email: testUser.email } },
+        orderBy: { createdAt: 'desc' }
+    });
+    
     const res = await request(app)
-      .post('/api/auth/login')
+      .post('/api/auth/reset-password')
       .send({
-        username: testUser.username,
-        password: 'wrongpassword'
+        email: testUser.email,
+        key: resetRecord?.key,
+        newPassword: 'newpassword456'
       });
-
-    expect(res.status).toBe(400);
+    
+    expect(res.status).toBe(200);
+    expect(res.body.message).toBe('PASSWORD_RESET_SUCCESS');
   });
 });

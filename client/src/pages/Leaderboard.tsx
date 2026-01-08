@@ -66,7 +66,7 @@ const Leaderboard = () => {
                   <Card title={t('nav.leaderboard')} subTitle="Accumulated points through the entire season" className="border-none bg-transparent shadow-none">
                     <DataTable value={users} stripedRows responsiveLayout="scroll" paginator rows={10} rowHover size="small" className="mt-4">
                       <Column header="RANK" body={(_rowData, options) => <span className="font-black text-primary">{options.rowIndex + 1}</span>} style={{ width: '6rem' }} align="center"></Column>
-                      <Column field="username" header={t('landing.username')} className="font-bold uppercase tracking-widest text-sm"></Column>
+                      <Column field="username" header={t('landing.username')} className="font-bold  tracking-widest text-sm"></Column>
                       <Column field="score" header="TOTAL POINTS" body={(row) => <span className="text-2xl font-black text-primary">{row.score}</span>} sortable align="right"></Column>
                     </DataTable>
                   </Card>
@@ -78,11 +78,11 @@ const Leaderboard = () => {
               <div className="py-6 px-4">
                   <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-gray-800 bg-opacity-20 p-6 rounded-xl border-1 border-gray-700 gap-4">
                       <div>
-                          <h2 className="text-2xl font-black uppercase italic tracking-tighter text-primary">Weekly Challenge</h2>
+                          <h2 className="text-2xl font-black  italic tracking-tighter text-primary">Weekly Challenge</h2>
                           <p className="text-sm text-gray-500 font-bold tracking-wider">Tie-breaker: First to submit wins.</p>
                       </div>
                       <div className="flex items-center gap-4">
-                          <span className="font-bold text-xs uppercase text-gray-400">Filter By:</span>
+                          <span className="font-bold text-xs  text-gray-400">Filter By:</span>
                           <Dropdown value={selectedWeek} options={weekOptions} onChange={(e) => setSelectedWeek(e.value)} className="w-12rem" />
                       </div>
                   </div>
@@ -98,7 +98,7 @@ const Leaderboard = () => {
                               </div>
                           )
                       }} style={{ width: '8rem' }} align="center"></Column>
-                      <Column field="username" header={t('landing.username')} className="font-bold uppercase text-sm"></Column>
+                      <Column field="username" header={t('landing.username')} className="font-bold  text-sm"></Column>
                       <Column field="correctPicks" header="CORRECT" align="center" className="font-black text-xl text-primary" style={{width: '8rem'}}></Column>
                       <Column field="lastPickDate" header="SUBMISSION TIME" body={(row) => (
                           <div className="flex flex-col">

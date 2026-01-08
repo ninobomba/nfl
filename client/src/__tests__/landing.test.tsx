@@ -6,7 +6,7 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '../store/slices/authSlice';
 
-// Mock simple de i18next
+// Mock de i18next
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
@@ -18,8 +18,8 @@ const store = configureStore({
   reducer: { auth: authReducer }
 });
 
-describe('Landing Page', () => {
-  it('renders the landing page title', () => {
+describe('Landing Page Component', () => {
+  it('should render the NFL logo and title', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
@@ -28,7 +28,24 @@ describe('Landing Page', () => {
       </Provider>
     );
     
-    // Debería encontrar la clave de traducción o el texto del título
+    // Buscar la imagen del logo por su alt text
+    const logo = screen.getByAltText(/NFL Logo/i);
+    expect(logo).toBeInTheDocument();
+    
+    // Buscar el título dinámico (clave de i18n)
     expect(screen.getByText(/landing.title/i)).toBeInTheDocument();
+  });
+
+  it('should render Login and Register buttons', () => {
+    render(
+      <Provider store={store}>
+        <BrowserRouter>
+          <Landing />
+        </BrowserRouter>
+      </Provider>
+    );
+    
+    expect(screen.getByText(/landing.signin/i)).toBeInTheDocument();
+    expect(screen.getByText(/landing.register/i)).toBeInTheDocument();
   });
 });

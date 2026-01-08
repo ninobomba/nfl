@@ -6,7 +6,6 @@ import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
-import { Card } from 'primereact/card';
 import { Toolbar } from 'primereact/toolbar';
 import { Dropdown } from 'primereact/dropdown';
 import { TabView, TabPanel } from 'primereact/tabview';
@@ -15,6 +14,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
 import { Calendar } from 'primereact/calendar';
+import { Card } from 'primereact/card';
 import { confirmDialog, ConfirmDialog } from 'primereact/confirmdialog';
 import { useTranslation } from 'react-i18next';
 
@@ -42,6 +42,14 @@ interface Matchup {
   startTime: string;
 }
 
+interface AuditLog {
+    id: number;
+    action: string;
+    details: string;
+    createdAt: string;
+    user: { username: string } | null;
+}
+
 const emptyMatchup = {
     week: 1,
     stage: 'REGULAR',
@@ -54,21 +62,12 @@ const Admin = () => {
   const [matchups, setMatchups] = useState<Matchup[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [selectedTheme, setSelectedTheme] = useState<string>('lara-dark-blue');
   const [adminSelectedWeek, setAdminSelectedWeek] = useState<number>(1);
   const [adminSelectedStage, setAdminSelectedStage] = useState<string>('REGULAR');
+  
   const { t } = useTranslation();
-  
-  const [showScoreDialog, setShowScoreDialog] = useState(false);
-  const [showTeamDialog, setShowTeamDialog] = useState(false);
-  const [showMatchupDialog, setShowMatchupDialog] = useState(false);
-  
-  const [currentMatchup, setCurrentMatchup] = useState<any>(null);
-  const [currentTeam, setCurrentTeam] = useState<any>(null);
-  const [homeScore, setHomeScore] = useState<number | null>(0);
-  const [awayScore, setAwayScore] = useState<number | null>(0);
-  const [matchupForm, setMatchupForm] = useState<any>(emptyMatchup);
-
   const { token } = useAppSelector((state) => state.auth);
   const toast = useRef<Toast>(null);
 
@@ -84,66 +83,81 @@ const Admin = () => {
 
   const themeOptions = [
       { label: 'Lara Dark Blue', value: 'lara-dark-blue' },
+      { label: 'Lara Dark Amber', value: 'lara-dark-amber' },
+      { label: 'Lara Dark Cyan', value: 'lara-dark-cyan' },
+      { label: 'Lara Dark Green', value: 'lara-dark-green' },
+      { label: 'Lara Dark Indigo', value: 'lara-dark-indigo' },
+      { label: 'Lara Dark Pink', value: 'lara-dark-pink' },
+      { label: 'Lara Dark Purple', value: 'lara-dark-purple' },
+      { label: 'Lara Dark Teal', value: 'lara-dark-teal' },
       { label: 'Lara Light Blue', value: 'lara-light-blue' },
+      { label: 'Lara Light Amber', value: 'lara-light-amber' },
+      { label: 'Lara Light Cyan', value: 'lara-light-cyan' },
+      { label: 'Lara Light Green', value: 'lara-light-green' },
+      { label: 'Lara Light Indigo', value: 'lara-light-indigo' },
+      { label: 'Lara Light Pink', value: 'lara-light-pink' },
+      { label: 'Lara Light Purple', value: 'lara-light-purple' },
+      { label: 'Lara Light Teal', value: 'lara-light-teal' },
       { label: 'Bootstrap 4 Dark Blue', value: 'bootstrap4-dark-blue' },
-      { label: 'Material Design', value: 'md-dark-indigo' }
+      { label: 'Bootstrap 4 Dark Purple', value: 'bootstrap4-dark-purple' },
+      { label: 'Bootstrap 4 Light Blue', value: 'bootstrap4-light-blue' },
+      { label: 'Bootstrap 4 Light Purple', value: 'bootstrap4-light-purple' },
+      { label: 'Material Design Dark Indigo', value: 'md-dark-indigo' },
+      { label: 'Soho Dark', value: 'soho-dark' },
+      { label: 'Viva Dark', value: 'viva-dark' },
+      { label: 'Arya Blue', value: 'arya-blue' },
+      { label: 'Vela Blue', value: 'vela-blue' },
+      { label: 'Saga Blue', value: 'saga-blue' }
   ];
 
   const confOptions = [{ label: 'AFC', value: 'AFC' }, { label: 'NFC', value: 'NFC' }];
   const divOptions = [{ label: 'East', value: 'East' }, { label: 'North', value: 'North' }, { label: 'South', value: 'South' }, { label: 'West', value: 'West' }];
 
-  const fetchMatchups = async () => {
+  const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/matchups', { headers: { Authorization: `Bearer ${token}` } });
-      setMatchups(response.data);
+      const headers = { Authorization: `Bearer ${token}` };
+      const [mRes, uRes, tRes, lRes, sRes] = await Promise.all([
+          axios.get('http://localhost:3000/api/matchups', { headers }),
+          axios.get('http://localhost:3000/api/admin/users', { headers }),
+          axios.get('http://localhost:3000/api/teams', { headers }),
+          axios.get('http://localhost:3000/api/admin/logs', { headers }),
+          axios.get('http://localhost:3000/api/admin/settings', { headers })
+      ]);
+      setMatchups(mRes.data);
+      setUsers(uRes.data);
+      setTeams(tRes.data);
+      setAuditLogs(lRes.data);
+      if (sRes.data.theme) setSelectedTheme(sRes.data.theme);
     } catch (error) { console.error(error); }
   };
 
-  const fetchUsers = async () => {
-      try {
-          const response = await axios.get('http://localhost:3000/api/admin/users', { headers: { Authorization: `Bearer ${token}` } });
-          setUsers(response.data);
-      } catch (error) { console.error(error); }
-  }
+  useEffect(() => { fetchData(); }, [token]);
 
-  const fetchTeams = async () => {
-      try {
-          const response = await axios.get('http://localhost:3000/api/teams', { headers: { Authorization: `Bearer ${token}` } });
-          setTeams(response.data);
-      } catch (error) { console.error(error); }
-  }
-
-  const fetchSettings = async () => {
-      try {
-          const response = await axios.get('http://localhost:3000/api/admin/settings', { headers: { Authorization: `Bearer ${token}` } });
-          if (response.data.theme) setSelectedTheme(response.data.theme);
-      } catch (error) { console.error(error); }
-  }
-
-  useEffect(() => {
-    fetchMatchups();
-    fetchUsers();
-    fetchTeams();
-    fetchSettings();
-  }, [token]);
+  const [showScoreDialog, setShowScoreDialog] = useState(false);
+  const [showTeamDialog, setShowTeamDialog] = useState(false);
+  const [showMatchupDialog, setShowMatchupDialog] = useState(false);
+  const [currentMatchup, setCurrentMatchup] = useState<any>(null);
+  const [currentTeam, setCurrentTeam] = useState<any>(null);
+  const [homeScore, setHomeScore] = useState<number | null>(0);
+  const [awayScore, setAwayScore] = useState<number | null>(0);
+  const [matchupForm, setMatchupForm] = useState<any>(emptyMatchup);
 
   const saveMatchup = async () => {
       try {
           if (matchupForm.id) {
               await axios.put('http://localhost:3000/api/admin/matchups', matchupForm, { headers: { Authorization: `Bearer ${token}` } });
-              toast.current?.show({severity:'success', summary: t('admin.success'), detail: t('admin.updated'), life: 3000});
+              toast.current?.show({severity:'success', summary: t('admin.success'), detail: t('admin.updated')});
           } else {
               await axios.post('http://localhost:3000/api/admin/matchups', matchupForm, { headers: { Authorization: `Bearer ${token}` } });
-              toast.current?.show({severity:'success', summary: t('admin.success'), detail: t('admin.created'), life: 3000});
+              toast.current?.show({severity:'success', summary: t('admin.success'), detail: t('admin.created')});
           }
           setShowMatchupDialog(false);
-          fetchMatchups();
+          fetchData();
       } catch (error: any) {
           let detail = error.response?.data?.message || 'Error';
           if (detail === 'SAME_TEAM_CONFLICT') detail = 'Un equipo no puede jugar contra sí mismo';
           if (detail === 'TEAM_ALREADY_SCHEDULED') detail = 'Uno de los equipos ya tiene un juego esta semana';
-          
-          toast.current?.show({severity:'error', summary: t('admin.error'), detail: detail, life: 5000});
+          toast.current?.show({severity:'error', summary: t('admin.error'), detail});
       }
   }
 
@@ -156,8 +170,7 @@ const Admin = () => {
           accept: async () => {
               try {
                   await axios.delete(`http://localhost:3000/api/admin/matchups/${id}`, { headers: { Authorization: `Bearer ${token}` } });
-                  toast.current?.show({severity:'success', summary: t('admin.success'), detail: t('admin.deleted'), life: 3000});
-                  fetchMatchups();
+                  fetchData();
               } catch (error) { console.error(error); }
           }
       });
@@ -167,9 +180,8 @@ const Admin = () => {
       if (!currentMatchup) return;
       try {
           await axios.post('http://localhost:3000/api/admin/simulate', { matchupId: currentMatchup.id, homeScore, awayScore }, { headers: { Authorization: `Bearer ${token}` } });
-          toast.current?.show({severity:'success', summary: t('admin.success'), detail: t('admin.updated'), life: 3000});
           setShowScoreDialog(false);
-          fetchMatchups();
+          fetchData();
       } catch (error) { console.error(error); }
   }
 
@@ -177,9 +189,8 @@ const Admin = () => {
       if (!currentTeam) return;
       try {
           await axios.post('http://localhost:3000/api/admin/teams/update', currentTeam, { headers: { Authorization: `Bearer ${token}` } });
-          toast.current?.show({severity:'success', summary: t('admin.success'), detail: t('admin.updated'), life: 3000});
           setShowTeamDialog(false);
-          fetchTeams();
+          fetchData();
       } catch (error) { console.error(error); }
   }
 
@@ -192,41 +203,21 @@ const Admin = () => {
           accept: async () => {
               try {
                   await axios.post('http://localhost:3000/api/admin/clear-schedule', {}, { headers: { Authorization: `Bearer ${token}` } });
-                  toast.current?.show({severity:'warn', summary: t('admin.success'), detail: t('admin.deleted'), life: 3000});
-                  fetchMatchups();
-                  fetchUsers();
+                  fetchData();
               } catch (error) { console.error(error); }
           }
       });
   }
 
-  const startContent = (
-      <div className="flex flex-wrap gap-2">
-          <Button label={t('admin.newGame')} icon="pi pi-plus" severity="success" size="small" onClick={() => { setMatchupForm(emptyMatchup); setShowMatchupDialog(true); }} />
-          <Button label={t('admin.clearAll')} icon="pi pi-trash" severity="danger" size="small" onClick={clearSeason} />
-      </div>
-  );
-
-  const endContent = (
-      <div className="flex items-center gap-2">
-          <span className="font-semibold text-gray-400 text-sm hidden md:block">{t('admin.theme')}</span>
-          <Dropdown value={selectedTheme} options={themeOptions} onChange={(e) => {
-              setSelectedTheme(e.value);
-              axios.post('http://localhost:3000/api/admin/settings', { key: 'theme', value: e.value }, { headers: { Authorization: `Bearer ${token}` } });
-              (document.getElementById('app-theme') as HTMLLinkElement).href = `/themes/${e.value}/theme.css`;
-          }} className="w-10rem md:w-14rem p-inputtext-sm" />
-      </div>
-  );
-
-  const weekOptions = Array.from({ length: 18 }, (_, i) => ({ label: `${t('admin.form.week')} ${i + 1}`, value: i + 1 }));
   const filteredMatchups = matchups.filter(m => m.week === adminSelectedWeek && m.stage === adminSelectedStage);
+  const weekOptions = Array.from({ length: 18 }, (_, i) => ({ label: `${t('admin.form.week')} ${i + 1}`, value: i + 1 }));
 
   return (
-    <div className="max-w-7xl mx-auto mt-4 md:mt-8 px-2 pb-12">
+    <div className="max-w-7xl mx-auto mt-4 md:mt-12 px-2 md:px-4 pb-20 font-comfortaa flex flex-col items-center">
       <Toast ref={toast} />
       <ConfirmDialog />
-      
-      {/* Dialogs */}
+
+      {/* DIALOGS */}
       <Dialog header={matchupForm.id ? t('admin.form.save') : t('admin.form.create')} visible={showMatchupDialog} breakpoints={dialogBreakpoints} style={{ width: '450px' }} onHide={() => setShowMatchupDialog(false)} footer={<div><Button label={t('admin.form.cancel')} icon="pi pi-times" onClick={() => setShowMatchupDialog(false)} className="p-button-text" /><Button label={t('admin.form.save')} icon="pi pi-check" onClick={saveMatchup} /></div>}>
           <div className="flex flex-col gap-6 p-fluid py-4">
               <div className="flex flex-col gap-4">
@@ -254,17 +245,17 @@ const Admin = () => {
 
       <Dialog header={t('admin.form.enterResult')} visible={showScoreDialog} breakpoints={dialogBreakpoints} style={{ width: '400px' }} onHide={() => setShowScoreDialog(false)} footer={<div><Button label={t('admin.form.cancel')} icon="pi pi-times" onClick={() => setShowScoreDialog(false)} className="p-button-text" /><Button label={t('admin.form.submit')} icon="pi pi-check" onClick={submitScores} /></div>}>
           {currentMatchup && (
-              <div className="flex flex-col gap-8 py-6">
-                  <div className="flex justify-between items-center text-center">
+              <div className="flex flex-col gap-8 py-6 text-center">
+                  <div className="flex justify-between items-center">
                       <div className="flex flex-col items-center gap-4 w-5/12">
                           <img src={currentMatchup.awayTeam.logoUrl} className="w-12 h-12" />
-                          <span className="font-bold text-xs uppercase text-gray-500">{currentMatchup.awayTeam.name}</span>
+                          <span className="font-bold text-xs text-gray-500">{currentMatchup.awayTeam.name}</span>
                           <InputNumber value={awayScore} onValueChange={(e) => setAwayScore(e.value ?? 0)} min={0} inputClassName="text-center text-xl font-bold" />
                       </div>
                       <div className="text-xl font-bold text-gray-400">@</div>
                       <div className="flex flex-col items-center gap-4 w-5/12">
                           <img src={currentMatchup.homeTeam.logoUrl} className="w-12 h-12" />
-                          <span className="font-bold text-xs uppercase text-gray-500">{currentMatchup.homeTeam.name}</span>
+                          <span className="font-bold text-xs text-gray-500">{currentMatchup.homeTeam.name}</span>
                           <InputNumber value={homeScore} onValueChange={(e) => setHomeScore(e.value ?? 0)} min={0} inputClassName="text-center text-xl font-bold" />
                       </div>
                   </div>
@@ -295,79 +286,150 @@ const Admin = () => {
           )}
       </Dialog>
 
-      <Card title={t('admin.panel')} subTitle={t('admin.manage')} className="border-none shadow-4">
+      {/* DASHBOARD CARD */}
+      <Card title={t('admin.panel')} subTitle={t('admin.manage')} className="w-full max-w-[1200px] border-none shadow-10 overflow-hidden rounded-3xl p-2 bg-surface-card text-center">
         <TabView>
-            <TabPanel header={t('admin.tabGames')} leftIcon="pi pi-calendar mr-2">
-                <Toolbar start={startContent} end={endContent} className="mb-2 p-2" />
-                
-                <div className="flex flex-wrap gap-4 items-center bg-gray-800 bg-opacity-20 p-3 rounded-lg mb-4">
-                    <div className="flex items-center gap-2">
-                        <span className="font-bold text-xs text-gray-400 uppercase">{t('admin.form.stage')}:</span>
-                        <Dropdown value={adminSelectedStage} options={stageOptions} onChange={(e) => setAdminSelectedStage(e.value)} className="p-inputtext-sm" />
-                    </div>
-                    {adminSelectedStage === 'REGULAR' && (
-                        <div className="flex items-center gap-2">
-                            <span className="font-bold text-xs text-gray-400 uppercase">{t('admin.form.week')}:</span>
-                            <Dropdown value={adminSelectedWeek} options={weekOptions} onChange={(e) => setAdminSelectedWeek(e.value)} className="p-inputtext-sm" />
+            {/* TAB 1: OVERVIEW */}
+            <TabPanel header="Overview" leftIcon="pi pi-chart-bar mr-3 font-bold">
+                <div className="py-12 px-4 flex flex-col items-center">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 w-full max-w-[900px]">
+                        <div className="bg-gray-900 bg-opacity-40 p-8 rounded-3xl border-l-4 border-primary shadow-xl">
+                            <span className="text-xs font-black text-gray-500 tracking-widest uppercase">Total Matchups</span>
+                            <div className="text-5xl font-black mt-4 text-white">{matchups.length}</div>
                         </div>
-                    )}
-                    <div className="ml-auto hidden sm:block">
-                        <Tag value={`${filteredMatchups.length} / 18 ${t('nav.games')}`} severity={filteredMatchups.length >= 18 ? 'danger' : 'info'} />
+                        <div className="bg-gray-900 bg-opacity-40 p-8 rounded-3xl border-l-4 border-green-500 shadow-xl">
+                            <span className="text-xs font-black text-gray-500 tracking-widest uppercase">Finished Games</span>
+                            <div className="text-5xl font-black mt-4 text-green-500">{matchups.filter(m => m.isFinished).length}</div>
+                        </div>
+                        <div className="bg-gray-900 bg-opacity-40 p-8 rounded-3xl border-l-4 border-yellow-500 shadow-xl">
+                            <span className="text-xs font-black text-gray-500 tracking-widest uppercase">Active Users</span>
+                            <div className="text-5xl font-black mt-4 text-yellow-500">{users.filter(u => u.isActive).length}</div>
+                        </div>
                     </div>
                 </div>
-
-                <DataTable value={filteredMatchups} stripedRows rowHover responsiveLayout="scroll" size="small">
-                    <Column header="#" body={(_row, options) => <span className="text-gray-500 font-mono text-[10px]">{options.rowIndex + 1}</span>} style={{width: '2rem'}} align="center" headerClassName="text-center"></Column>
-                    
-                    <Column header="" body={(row) => <img src={row.awayTeam.logoUrl} className="object-contain" style={{ width: '40px', height: '40px' }} />} style={{width: '50px'}} align="right" headerClassName="justify-content-center"></Column>
-                    <Column header={t('admin.form.away')} body={(row) => <span className="font-bold text-[10px] uppercase tracking-wider">{row.awayTeam.name}</span>} style={{width: '10rem'}} headerClassName="text-center"></Column>
-                    
-                    <Column header="" body={() => <span className="text-gray-500 text-[10px] font-black">@</span>} align="center" style={{width: '2rem'}} headerClassName="text-center"></Column>
-                    
-                    <Column header={t('admin.form.home')} body={(row) => <span className="font-bold text-[10px] uppercase tracking-wider">{row.homeTeam.name}</span>} style={{width: '10rem'}} align="right" headerClassName="text-center"></Column>
-                    <Column header="" body={(row) => <img src={row.homeTeam.logoUrl} className="object-contain" style={{ width: '40px', height: '40px' }} />} style={{width: '50px'}} align="left" headerClassName="justify-content-center"></Column>
-                    
-                    <Column header={t('admin.status')} body={(row) => row.isFinished ? <Tag severity="success" value={t('admin.finished')} className="text-[8px]" /> : <Tag severity="warning" value={t('admin.pending')} className="text-[8px]" />} align="center" headerClassName="text-center"></Column>
-                    <Column header={t('admin.result')} body={(row) => row.isFinished ? <span className="font-bold text-primary text-xs">{row.awayScore} - {row.homeScore}</span> : <Button label={t('admin.result')} icon="pi pi-pencil" size="small" severity="warning" text onClick={() => { setCurrentMatchup(row); setHomeScore(0); setAwayScore(0); setShowScoreDialog(true); }} />} className="text-xs" align="center" headerClassName="text-center"></Column>
-                    
-                    <Column header="" align="center" body={(row) => (
-                        <div className="flex gap-1">
-                            <Button icon="pi pi-pencil" rounded text severity="warning" onClick={() => {
-                                setMatchupForm({ id: row.id, week: row.week, stage: row.stage, homeTeamId: row.homeTeamId, awayTeamId: row.awayTeamId, startTime: new Date(row.startTime) });
-                                setShowMatchupDialog(true);
-                            }} className="p-button-sm" />
-                            <Button icon="pi pi-trash" rounded text severity="danger" onClick={() => deleteMatchup(row.id)} className="p-button-sm" />
-                        </div>
-                    )}></Column>
-                </DataTable>
             </TabPanel>
 
-            <TabPanel header={t('admin.tabTeams')} leftIcon="pi pi-briefcase mr-2">
-                <DataTable value={teams} stripedRows rowHover paginator rows={15} size="small" sortField="conference" sortOrder={1} responsiveLayout="scroll">
-                    <Column header="" body={(row) => <img src={row.logoUrl} className="w-8 h-8 object-contain" />} style={{width: '3rem'}} align="center"></Column>
-                    <Column field="city" header={t('admin.city')} sortable className="text-xs"></Column>
-                    <Column field="name" header={t('admin.name')} sortable className="text-xs"></Column>
-                    <Column field="conference" header={t('admin.conf')} sortable align="center" className="text-xs"></Column>
-                    <Column field="division" header={t('admin.div')} sortable align="center" className="text-xs"></Column>
-                    <Column header="" body={(row) => <Button icon="pi pi-pencil" rounded text severity="secondary" onClick={() => { setCurrentTeam(row); setShowTeamDialog(true); }} />} align="center"></Column>
-                </DataTable>
-            </TabPanel>
-            
-            <TabPanel header={t('admin.tabUsers')} leftIcon="pi pi-users mr-2">
-                <DataTable value={users} stripedRows rowHover paginator rows={15} size="small" responsiveLayout="scroll">
-                    <Column field="username" header={t('landing.username')} sortable className="text-xs"></Column>
-                    <Column field="email" header="Email" className="text-xs"></Column>
-                    <Column field="score" header="Score" sortable className="text-xs"></Column>
-                    <Column header={t('admin.status')} body={(rowData) => (
-                        <div className="flex items-center gap-2">
-                            <InputSwitch checked={rowData.isActive} onChange={() => {
-                                axios.post('http://localhost:3000/api/admin/users/toggle-status', { id: rowData.id, isActive: !rowData.isActive }, { headers: { Authorization: `Bearer ${token}` } })
-                                    .then(() => fetchUsers());
-                            }} className="scale-50" />
-                            <Tag severity={rowData.isActive ? 'success' : 'danger'} value={rowData.isActive ? t('admin.success').substring(0,3) : 'OFF'} className="text-[8px]" />
+            {/* TAB 2: MATCHUPS (CRUD INCLUDED HERE) */}
+            <TabPanel header={t('admin.tabGames')} leftIcon="pi pi-calendar mr-3 font-bold">
+                <div className="py-8 flex flex-col items-center">
+                    <div className="w-full max-w-[900px] mx-auto">
+                        {/* Toolbar MOVIDA AQUÍ */}
+                        <Toolbar start={(
+                            <div className="flex flex-wrap gap-2">
+                                <Button label={t('admin.newGame')} icon="pi pi-plus" severity="success" size="small" className="font-black" onClick={() => { setMatchupForm(emptyMatchup); setShowMatchupDialog(true); }} />
+                                <Button label={t('admin.clearAll')} icon="pi pi-trash" severity="danger" size="small" className="font-black" onClick={clearSeason} />
+                            </div>
+                        )} className="mb-6 p-3 surface-card border-gray-800 rounded-xl shadow-2" />
+                        
+                        <div className="flex flex-wrap gap-6 items-center bg-gray-800 bg-opacity-20 p-6 rounded-2xl mb-10 border-1 border-gray-800 shadow-inner mx-auto">
+                            <div className="flex items-center gap-4">
+                                <span className="font-black text-xs text-gray-500 uppercase tracking-widest">{t('admin.form.stage')}:</span>
+                                <Dropdown value={adminSelectedStage} options={stageOptions} onChange={(e) => setAdminSelectedStage(e.value)} className="p-inputtext-sm w-14rem font-black" />
+                            </div>
+                            {adminSelectedStage === 'REGULAR' && (
+                                <div className="flex items-center gap-4">
+                                    <span className="font-black text-xs text-gray-500 uppercase tracking-widest">{t('admin.form.week')}:</span>
+                                    <Dropdown value={adminSelectedWeek} options={weekOptions} onChange={(e) => setAdminSelectedWeek(e.value)} className="p-inputtext-sm w-12rem font-black" />
+                                </div>
+                            )}
+                            <div className="ml-auto hidden lg:block">
+                                <Tag value={`${filteredMatchups.length} / 18 Games`} severity={filteredMatchups.length >= 18 ? 'danger' : 'info'} className="px-5 py-2 font-black shadow-4" />
+                            </div>
                         </div>
-                    )}></Column>
-                </DataTable>
+                    </div>
+
+                    <div className="w-fit mx-auto shadow-10 rounded-2xl overflow-hidden border-1 border-gray-800 bg-gray-900 bg-opacity-20">
+                        <DataTable value={filteredMatchups} stripedRows rowHover responsiveLayout="scroll">
+                            <Column header="#" body={(_row, options) => <span className="text-gray-600 font-black text-xs px-2">{options.rowIndex + 1}</span>} align="center" headerClassName="justify-content-center"></Column>
+                            
+                            {/* Away Team: 2 columns */}
+                            <Column header="" body={(row) => <div className="py-4 px-2"><img src={row.awayTeam.logoUrl} className="object-contain w-12 h-12" /></div>} align="right" headerClassName="justify-content-center"></Column>
+                            <Column header={t('admin.form.away')} body={(row) => <span className="font-black text-sm uppercase tracking-widest px-2">{row.awayTeam.name}</span>} headerClassName="text-center"></Column>
+                            
+                            <Column header="" body={() => <span className="text-gray-700 text-xl font-black italic opacity-30 px-2">@</span>} align="center" headerClassName="text-center"></Column>
+                            
+                            {/* Home Team: 2 columns */}
+                            <Column header={t('admin.form.home')} body={(row) => <span className="font-black text-sm uppercase tracking-widest px-2">{row.homeTeam.name}</span>} align="right" headerClassName="text-center"></Column>
+                            <Column header="" body={(row) => <div className="py-4 px-2"><img src={row.homeTeam.logoUrl} className="object-contain w-12 h-12" /></div>} align="left" headerClassName="justify-content-center"></Column>
+                            
+                            <Column header={t('admin.status')} body={(row) => <div className="px-2">{row.isFinished ? <Tag severity="success" value={t('admin.finished')} className="text-[10px] font-black px-3" /> : <Tag severity="warning" value={t('admin.pending')} className="text-[10px] font-black px-3" />}</div>} align="center" headerClassName="text-center"></Column>
+                            <Column header={t('admin.result')} body={(row) => <div className="px-4">{row.isFinished ? <span className="font-black text-primary text-2xl tracking-tighter">{row.awayScore} - {row.homeScore}</span> : <Button label="Score" icon="pi pi-pencil" size="small" severity="warning" text className="font-black text-xs" onClick={() => { setCurrentMatchup(row); setHomeScore(0); setAwayScore(0); setShowScoreDialog(true); }} />}</div>} align="center" headerClassName="text-center"></Column>
+                            
+                            <Column header="" align="center" body={(row) => (
+                                <div className="flex gap-2 px-6 py-4">
+                                    <Button icon="pi pi-pencil" rounded text severity="warning" onClick={() => { setMatchupForm({ ...row, startTime: new Date(row.startTime) }); setShowMatchupDialog(true); }} className="p-button-sm shadow-2" />
+                                    <Button icon="pi pi-trash" rounded text severity="danger" onClick={() => deleteMatchup(row.id)} className="p-button-sm shadow-2" />
+                                </div>
+                            )}></Column>
+                        </DataTable>
+                    </div>
+                </div>
+            </TabPanel>
+
+            <TabPanel header={t('admin.tabTeams')} leftIcon="pi pi-briefcase mr-3 font-bold">
+                <div className="py-12 flex flex-col items-center">
+                    <div className="w-fit mx-auto shadow-10 rounded-2xl overflow-hidden border-1 border-gray-800 bg-gray-900 bg-opacity-20">
+                        <DataTable value={teams} stripedRows rowHover paginator rows={15} sortField="conference" sortOrder={1} responsiveLayout="scroll">
+                            <Column header="" body={(row) => <div className="py-4 px-6"><img src={row.logoUrl} className="w-12 h-12 object-contain" /></div>} align="center"></Column>
+                            <Column field="city" header={t('admin.city')} sortable className="text-sm font-bold px-6"></Column>
+                            <Column field="name" header={t('admin.name')} sortable className="text-sm font-black uppercase tracking-widest text-primary px-6"></Column>
+                            <Column field="conference" header={t('admin.conf')} sortable align="center" className="text-sm font-black px-6"></Column>
+                            <Column field="division" header={t('admin.div')} sortable align="center" className="text-sm font-black px-6"></Column>
+                            <Column header="" body={(row) => <div className="py-4 px-6"><Button icon="pi pi-pencil" rounded text severity="secondary" onClick={() => { setCurrentTeam(row); setShowTeamDialog(true); }} className="shadow-2 scale-125" /></div>} align="center"></Column>
+                        </DataTable>
+                    </div>
+                </div>
+            </TabPanel>
+
+            <TabPanel header={t('admin.tabUsers')} leftIcon="pi pi-users mr-3 font-bold">
+                <div className="py-12 flex flex-col items-center">
+                    <div className="w-fit mx-auto shadow-10 rounded-2xl overflow-hidden border-1 border-gray-800 bg-gray-900 bg-opacity-20">
+                        <DataTable value={users} stripedRows rowHover paginator rows={15} responsiveLayout="scroll">
+                            <Column field="username" header={t('landing.username')} sortable className="text-base font-black uppercase tracking-wider px-8 py-6"></Column>
+                            <Column field="email" header="Email" className="text-sm font-medium px-8 py-6 text-gray-400"></Column>
+                            <Column field="score" header="Points" sortable className="text-3xl font-black text-primary px-8 py-6" align="center"></Column>
+                            <Column header="Status" body={(rowData) => (
+                                <div className="flex items-center gap-6 px-8 py-6">
+                                    <InputSwitch checked={rowData.isActive} onChange={() => {
+                                        axios.post('http://localhost:3000/api/admin/users/toggle-status', { id: rowData.id, isActive: !rowData.isActive }, { headers: { Authorization: `Bearer ${token}` } })
+                                            .then(() => fetchData());
+                                    }} className="scale-125" />
+                                    <Tag severity={rowData.isActive ? 'success' : 'danger'} value={rowData.isActive ? "ACTIVE" : "OFF"} className="text-[10px] font-black px-4 py-2 shadow-4" />
+                                </div>
+                            )} align="center"></Column>
+                        </DataTable>
+                    </div>
+                </div>
+            </TabPanel>
+
+            <TabPanel header={t('admin.tabLogs')} leftIcon="pi pi-history mr-3 font-bold">
+                <div className="py-12 flex flex-col items-center">
+                    <div className="w-fit mx-auto shadow-10 rounded-2xl overflow-hidden border-1 border-gray-800 bg-gray-900 bg-opacity-20">
+                        <DataTable value={auditLogs} stripedRows rowHover paginator rows={15} size="small">
+                            <Column field="createdAt" header="Timestamp" body={(row) => new Date(row.createdAt).toLocaleString()} sortable className="text-xs font-bold px-6 py-4"></Column>
+                            <Column field="user.username" header="User" body={(row) => row.user?.username || 'SYSTEM'} className="text-xs font-black text-primary px-6 py-4"></Column>
+                            <Column field="action" header="Action" className="text-xs font-bold px-6 py-4"></Column>
+                            <Column field="details" header="Details" className="text-xs text-gray-400 px-6 py-4"></Column>
+                        </DataTable>
+                    </div>
+                </div>
+            </TabPanel>
+
+            <TabPanel header={t('admin.tabTheme')} leftIcon="pi pi-palette mr-3 font-bold">
+                <div className="py-16 flex flex-col items-center">
+                    <div className="w-full max-w-[600px] surface-card p-12 rounded-3xl shadow-10 border-1 border-gray-800 text-center">
+                        <h3 className="text-2xl font-black uppercase italic tracking-tighter text-primary mb-8 border-bottom-1 border-gray-800 pb-4">Visual Configuration</h3>
+                        <div className="flex flex-col gap-4">
+                            <label className="font-black text-xs uppercase tracking-widest text-gray-500 mb-2">{t('admin.theme')}</label>
+                            <Dropdown value={selectedTheme} options={themeOptions} onChange={(e) => {
+                                setSelectedTheme(e.value);
+                                axios.post('http://localhost:3000/api/admin/settings', { key: 'theme', value: e.value }, { headers: { Authorization: `Bearer ${token}` } });
+                                (document.getElementById('app-theme') as HTMLLinkElement).href = `/themes/${e.value}/theme.css`;
+                            }} className="w-full p-4 font-black shadow-4" />
+                            <p className="text-xs text-gray-600 font-bold leading-relaxed mt-4">{t('admin.themeNote')}</p>
+                        </div>
+                    </div>
+                </div>
             </TabPanel>
         </TabView>
       </Card>

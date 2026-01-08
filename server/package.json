@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "vitest run src",
+    "test:watch": "vitest src"
   },
   "keywords": [],
   "author": "",

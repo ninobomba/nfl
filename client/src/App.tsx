@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useAppSelector } from './store/hooks';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import Leaderboard from './pages/Leaderboard';
 import Admin from './pages/Admin';
@@ -50,6 +51,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/register" element={<Register />} />
         
         {/* Admin Route - Independent of PrivateRoute to prevent redirect */}

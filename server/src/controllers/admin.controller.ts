@@ -249,3 +249,16 @@ export const updateTeam = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Error" });
     }
 }
+
+export const getAuditLogs = async (req: Request, res: Response) => {
+    try {
+        const logs = await prisma.auditLog.findMany({
+            include: { user: { select: { username: true } } },
+            orderBy: { createdAt: 'desc' },
+            take: 100 // Últimos 100 registros
+        });
+        res.json(logs);
+    } catch (error) {
+        res.status(500).json({ message: "Error al recuperar la bitácora" });
+    }
+}

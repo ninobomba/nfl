@@ -43,40 +43,48 @@ const Standings = () => {
     fetchStandings();
   }, [token]);
 
-  const renderStandingsTable = (teams: TeamStats[]) => {
-    const sortedTeams = [...teams].sort((a, b) => {
-        if (a.division < b.division) return -1;
-        if (a.division > b.division) return 1;
-        return Number(b.pct) - Number(a.pct);
-    });
+  const divisions = ['East', 'North', 'South', 'West'];
+
+  const renderDivisionTable = (teams: TeamStats[], divisionName: string) => {
+    const divisionTeams = teams
+        .filter(t => t.division === divisionName)
+        .sort((a, b) => Number(b.pct) - Number(a.pct));
 
     return (
-        <DataTable 
-            value={sortedTeams} 
-            stripedRows 
-            rowHover
-            responsiveLayout="scroll" 
-            rowGroupMode="subheader" 
-            groupRowsBy="division"
-            size="small"
-            className="mt-2"
-            rowGroupHeaderTemplate={(data) => (
-                <div className="font-black uppercase tracking-widest text-primary py-3 px-4 text-[10px] md:text-xs bg-gray-800 bg-opacity-10 border-bottom-1 border-gray-800">
-                    {data.division}
-                </div>
-            )}
-        >
-          <Column header="" body={(row) => <img src={row.logoUrl} alt={row.name} className="w-8 h-8 md:w-10 md:h-10 object-contain" />} style={{ width: '6rem' }} align="center" headerClassName="justify-content-center"></Column>
-          <Column header={t('admin.tabTeams')} body={(row) => (
-              <div className="flex flex-col md:flex-row md:gap-2 items-start md:items-center">
-                  <span className="hidden md:inline text-gray-500 font-bold uppercase text-[10px] tracking-tight">{row.city}</span>
-                  <span className="font-black text-xs md:text-sm uppercase tracking-wider">{row.name}</span>
-              </div>
-          )} style={{ width: '40%' }} headerClassName="text-center"></Column>
-          <Column field="wins" header="W" sortable className="text-xs font-black" align="center" style={{ width: '4rem' }} headerClassName="justify-content-center"></Column>
-          <Column field="losses" header="L" sortable className="text-xs font-black" align="center" style={{ width: '4rem' }} headerClassName="justify-content-center"></Column>
-          <Column field="ties" header="T" sortable className="text-xs font-black" align="center" style={{ width: '4rem' }} headerClassName="justify-content-center"></Column>
-        </DataTable>
+        <div key={divisionName} className="mb-20 last:mb-0 flex flex-col items-center">
+            <div className="w-full max-w-[700px] flex items-center gap-6 mb-8 border-bottom-1 border-primary-500 pb-4">
+                <span className="text-3xl font-black  italic tracking-tighter text-primary">{divisionName}</span>
+                <div className="flex-grow border-bottom-1 border-gray-800 opacity-20"></div>
+            </div>
+            
+            <div className="w-fit shadow-10 rounded-2xl overflow-hidden border-1 border-gray-800 bg-surface-card transition-all hover:shadow-primary-500/10">
+                <DataTable 
+                    value={divisionTeams} 
+                    stripedRows 
+                    rowHover
+                    responsiveLayout="scroll" 
+                    className="p-datatable-lg"
+                    style={{ minWidth: '650px' }}
+                >
+                  <Column header="" body={(row) => (
+                      <div className="flex justify-center py-2 px-4">
+                          <img src={row.logoUrl} alt={row.name} className="w-12 h-12 md:w-14 md:h-12 object-contain" />
+                      </div>
+                  )} style={{ width: '7rem' }} align="center" headerClassName="justify-content-center"></Column>
+                  
+                  <Column header={t('admin.tabTeams')} body={(row) => (
+                      <div className="flex flex-col md:flex-row md:gap-4 items-start md:items-center py-2 px-4">
+                          <span className="hidden md:inline text-gray-500 font-black  text-[10px] tracking-[0.2em] opacity-40">{row.city}</span>
+                          <span className="font-black text-sm md:text-lg  tracking-widest text-white">{row.name}</span>
+                      </div>
+                  )} style={{ width: '22rem' }} headerClassName="text-center"></Column>
+                  
+                  <Column field="wins" header="W" className="text-base font-black py-4 px-6 text-green-500" align="center" style={{ width: '6rem' }} headerClassName="justify-content-center"></Column>
+                  <Column field="losses" header="L" className="text-base font-black py-4 px-6 text-red-500" align="center" style={{ width: '6rem' }} headerClassName="justify-content-center"></Column>
+                  <Column field="ties" header="T" className="text-base font-black py-4 px-6 text-gray-400" align="center" style={{ width: '6rem' }} headerClassName="justify-content-center"></Column>
+                </DataTable>
+            </div>
+        </div>
     );
   };
 
@@ -84,17 +92,17 @@ const Standings = () => {
   const nfcTeams = standings.filter((t) => t.conference === 'NFC');
 
   return (
-    <div className="max-w-7xl mx-auto mt-4 md:mt-12 px-2 md:px-4 pb-12">
-      <Card title={t('nav.standings')} subTitle="NFL Rankings" className="shadow-4 border-none overflow-hidden">
-        <TabView className="mt-2 md:mt-4">
-          <TabPanel header="AFC" leftIcon="pi pi-shield mr-2">
-            <div className="py-2 md:py-6 px-1 md:px-4">
-                {renderStandingsTable(afcTeams)}
+    <div className="max-w-7xl mx-auto mt-12 px-4 pb-20 font-comfortaa">
+      <Card title={t('nav.standings')} subTitle="National Football League Rankings by Division" className="shadow-8 border-none overflow-hidden text-center rounded-3xl">
+        <TabView className="mt-8">
+          <TabPanel header="American Football Conference (AFC)" leftIcon="pi pi-shield mr-3 text-blue-500 font-bold">
+            <div className="py-16">
+                {divisions.map(div => renderDivisionTable(afcTeams, div))}
             </div>
           </TabPanel>
-          <TabPanel header="NFC" leftIcon="pi pi-shield mr-2">
-            <div className="py-2 md:py-6 px-1 md:px-4">
-                {renderStandingsTable(nfcTeams)}
+          <TabPanel header="National Football Conference (NFC)" leftIcon="pi pi-shield mr-3 text-red-500 font-bold">
+            <div className="py-16">
+                {divisions.map(div => renderDivisionTable(nfcTeams, div))}
             </div>
           </TabPanel>
         </TabView>
