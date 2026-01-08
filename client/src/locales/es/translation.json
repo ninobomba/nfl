@@ -1,0 +1,69 @@
+{
+  "nav": {
+    "games": "Partidos Semanales",
+    "results": "Resultados de Temporada",
+    "standings": "Posiciones de Equipos",
+    "leaderboard": "Tabla de Clasificación",
+    "admin": "Panel de Administración",
+    "logout": "Cerrar Sesión",
+    "hi": "Bienvenido, {{name}}"
+  },
+  "landing": {
+    "title": "Pick'em",
+    "subtitle": "Reto de Lotería",
+    "description": "El desafío definitivo de predicciones de la National Football League. Pronostica los ganadores de cada juego desde la Temporada Regular hasta el Super Bowl.",
+    "username": "Nombre de Usuario",
+    "password": "Contraseña de Acceso",
+    "signin": "Iniciar Sesión",
+    "or": "O BIEN",
+    "register": "Crear Nueva Cuenta",
+    "adminPortal": "Portal del Administrador"
+  },
+  "dashboard": {
+    "title": "Partidos de la Semana",
+    "description": "Predice los ganadores y sigue los resultados oficiales",
+    "selectWeek": "Seleccionar Semana Actual:",
+    "noMatchups": "No hay partidos programados",
+    "checkBack": "Vuelve más tarde para actualizaciones de {{stage}}.",
+    "correct": "PREDICCIÓN CORRECTA",
+    "incorrect": "PREDICCIÓN INCORRECTA"
+  },
+  "admin": {
+    "panel": "Panel de Control Administrativo",
+    "manage": "Gestión Integral de Juegos, Equipos y Usuarios",
+    "tabGames": "Gestión de Partidos",
+    "tabTeams": "Equipos de la NFL",
+    "tabUsers": "Usuarios Registrados",
+    "newGame": "Crear Nuevo Partido",
+    "clearAll": "Borrar Datos de Temporada",
+    "theme": "Tema de la Aplicación:",
+    "confirmClear": "¿Estás seguro de borrar TODOS los juegos y reiniciar las puntuaciones? Esta acción no se puede deshacer.",
+    "confirmDelete": "¿Estás seguro de eliminar este partido permanentemente?",
+    "success": "Éxito",
+    "error": "Error de Validación",
+    "updated": "Registro Actualizado Correctamente",
+    "created": "Registro Creado Correctamente",
+    "deleted": "Registro Eliminado Correctamente",
+    "status": "Estado Actual",
+    "result": "Resultado del Juego",
+    "editTeam": "Editar Detalles del Equipo",
+    "city": "Ciudad",
+    "name": "Nombre del Equipo",
+    "conf": "Conferencia",
+    "div": "División",
+    "finished": "FINALIZADO",
+    "pending": "PENDIENTE",
+    "form": {
+      "stage": "Etapa de Temporada",
+      "week": "Semana NFL",
+      "away": "Equipo Visitante",
+      "home": "Equipo Local",
+      "date": "Fecha y Hora Programada",
+      "cancel": "Cancelar Acción",
+      "save": "Guardar Cambios",
+      "create": "Crear Partido",
+      "submit": "Subir Marcador Final",
+      "enterResult": "Ingresar Resultado Oficial"
+    }
+  }
+}

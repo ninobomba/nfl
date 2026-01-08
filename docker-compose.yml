@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    container_name: nfl_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: nfl_user
+      POSTGRES_PASSWORD: nfl_password
+      POSTGRES_DB: nfl_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

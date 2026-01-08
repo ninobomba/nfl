@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Comfortaa', cursive;
+}
+
+body {
+  font-family: 'Comfortaa', cursive;
+}
+
+/* Ensure PrimeReact components use the new font */
+.p-component {
+  font-family: 'Comfortaa', cursive !important;
+}

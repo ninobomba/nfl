@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  score     Int      @default(0)
+  role      UserRole @default(USER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  picks     Pick[]
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model Team {
+  id           Int       @id @default(autoincrement())
+  name         String
+  city         String
+  abbreviation String    @unique
+  logoUrl      String?
+  conference   String?   // AFC, NFC
+  division     String?   // North, South, East, West
+  
+  homeMatchups Matchup[] @relation("HomeTeam")
+  awayMatchups Matchup[] @relation("AwayTeam")
+  picks        Pick[]
+}
+
+model Matchup {
+  id         Int         @id @default(autoincrement())
+  week       Int
+  stage      SeasonStage @default(REGULAR)
+  startTime  DateTime
+  isFinished Boolean     @default(false)
+  
+  homeTeamId Int
+  homeTeam   Team        @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  
+  awayTeamId Int
+  awayTeam   Team        @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  
+  homeScore  Int?
+  awayScore  Int?
+  winnerId   Int?
+  
+  picks      Pick[]
+}
+
+model Pick {
+  id             Int     @id @default(autoincrement())
+  userId         Int
+  user           User    @relation(fields: [userId], references: [id])
+  
+  matchupId      Int
+  matchup        Matchup @relation(fields: [matchupId], references: [id])
+  
+  selectedTeamId Int
+  selectedTeam   Team    @relation(fields: [selectedTeamId], references: [id])
+  
+  isCorrect      Boolean?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([userId, matchupId])
+}
+
+model AppSetting {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String
+}
+
+enum SeasonStage {
+  REGULAR
+  WILDCARD
+  DIVISIONAL
+  CONFERENCE
+  SUPERBOWL
+}

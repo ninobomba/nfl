@@ -1,0 +1,135 @@
+import type { Response } from 'express';
+import type { AuthRequest } from '../middleware/auth.middleware.js';
+import prisma from '../prisma.js';
+
+export const getMyPicks = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+    }
+    const picks = await prisma.pick.findMany({
+      where: { userId },
+      include: { matchup: true },
+    });
+    res.json(picks);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching picks' });
+  }
+};
+
+export const makePick = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+    const { matchupId, selectedTeamId } = req.body;
+
+    if (!userId) {
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+    }
+
+    const matchup = await prisma.matchup.findUnique({ where: { id: matchupId } });
+    if (!matchup) {
+      res.status(404).json({ message: 'Matchup not found' });
+      return;
+    }
+
+    if (new Date() > matchup.startTime) {
+      res.status(400).json({ message: 'Pick deadline has passed' });
+      return;
+    }
+
+    const pick = await prisma.pick.upsert({
+      where: {
+        userId_matchupId: {
+          userId,
+          matchupId,
+        },
+      },
+      update: { selectedTeamId },
+      create: {
+        userId,
+        matchupId,
+        selectedTeamId,
+      },
+    });
+
+    res.json(pick);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error making pick' });
+  }
+};
+
+export const getLeaderboard = async (req: AuthRequest, res: Response) => {
+    try {
+        const users = await prisma.user.findMany({
+            select: { id: true, username: true, score: true },
+            orderBy: { score: 'desc' }
+        });
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching leaderboard" });
+    }
+}
+
+export const getWeeklyLeaderboard = async (req: AuthRequest, res: Response) => {
+    try {
+        const week = Number(req.query.week);
+        const stage = req.query.stage as any || 'REGULAR';
+
+        if (!week) {
+            res.status(400).json({ message: "Semana requerida" });
+            return;
+        }
+
+        // Obtener todos los picks de la semana
+        const picks = await prisma.pick.findMany({
+            where: {
+                matchup: { week, stage }
+            },
+            include: {
+                user: { select: { id: true, username: true } }
+            }
+        });
+
+        // Agrupar por usuario
+        const userStats: Record<number, any> = {};
+
+        picks.forEach(pick => {
+            if (!userStats[pick.userId]) {
+                userStats[pick.userId] = {
+                    id: pick.userId,
+                    username: pick.user.username,
+                    correctPicks: 0,
+                    lastPickDate: pick.updatedAt
+                };
+            }
+
+            if (pick.isCorrect) {
+                userStats[pick.userId].correctPicks++;
+            }
+
+            // El "momento de ingreso" es la fecha del pick más reciente de esa semana
+            if (pick.updatedAt > userStats[pick.userId].lastPickDate) {
+                userStats[pick.userId].lastPickDate = pick.updatedAt;
+            }
+        });
+
+        // Convertir a array y ordenar
+        const ranking = Object.values(userStats).sort((a, b) => {
+            // 1. Mayor número de aciertos
+            if (b.correctPicks !== a.correctPicks) {
+                return b.correctPicks - a.correctPicks;
+            }
+            // 2. Desempate: El que terminó primero (fecha menor) gana
+            return a.lastPickDate.getTime() - b.lastPickDate.getTime();
+        });
+
+        res.json(ranking);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error al calcular ranking semanal" });
+    }
+}

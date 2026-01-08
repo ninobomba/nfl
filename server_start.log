@@ -1,0 +1,15 @@
+
+> server@1.0.0 dev
+> tsx watch src/index.ts
+
+/home/ninobomba/apps/nfl/server/src/routes/admin.routes.ts:13
+router.post('/clear-schedule', clearSchedule);
+                               ^
+
+ReferenceError: clearSchedule is not defined
+    at <anonymous> (/home/ninobomba/apps/nfl/server/src/routes/admin.routes.ts:13:32)
+    at ModuleJob.run (node:internal/modules/esm/module_job:377:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:671:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.11.1
