@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import api from '../api/axios';
 import { useAppSelector } from '../store/hooks';
 import { DataTable } from 'primereact/datatable';
@@ -42,6 +42,21 @@ interface Matchup {
   startTime: string;
 }
 
+interface MatchupForm {
+    id?: number;
+    week: number;
+    stage: string;
+    homeTeamId: number;
+    awayTeamId: number;
+    startTime: Date;
+    homeTeam?: Team;
+    awayTeam?: Team;
+    isFinished?: boolean;
+    winnerId?: number | null;
+    homeScore?: number | null;
+    awayScore?: number | null;
+}
+
 interface AuditLog {
     id: number;
     action: string;
@@ -50,7 +65,18 @@ interface AuditLog {
     user: { username: string } | null;
 }
 
-const emptyMatchup = {
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  score: number;
+  role: string;
+  isActive: boolean;
+  deletedAt: string | null;
+  createdAt: string;
+}
+
+const emptyMatchup: MatchupForm = {
     week: 1,
     stage: 'REGULAR',
     homeTeamId: 0,
@@ -60,7 +86,7 @@ const emptyMatchup = {
 
 const Admin = () => {
   const [matchups, setMatchups] = useState<Matchup[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [selectedTheme, setSelectedTheme] = useState<string>('lara-dark-blue');
@@ -143,7 +169,7 @@ const Admin = () => {
   const confOptions = [{ label: 'AFC', value: 'AFC' }, { label: 'NFC', value: 'NFC' }];
   const divOptions = [{ label: 'East', value: 'East' }, { label: 'North', value: 'North' }, { label: 'South', value: 'South' }, { label: 'West', value: 'West' }];
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const headers = { Authorization: `Bearer ${token}` };
       const [mRes, uRes, tRes, lRes, sRes] = await Promise.all([
@@ -159,18 +185,23 @@ const Admin = () => {
       setAuditLogs(lRes.data);
       if (sRes.data.theme) setSelectedTheme(sRes.data.theme);
     } catch (error) { console.error(error); }
-  };
+  }, [token]);
 
-  useEffect(() => { fetchData(); }, [token]);
+  useEffect(() => {
+    const run = async () => {
+        await fetchData();
+    };
+    run();
+  }, [fetchData]);
 
   const [showScoreDialog, setShowScoreDialog] = useState(false);
   const [showTeamDialog, setShowTeamDialog] = useState(false);
   const [showMatchupDialog, setShowMatchupDialog] = useState(false);
-  const [currentMatchup, setCurrentMatchup] = useState<any>(null);
-  const [currentTeam, setCurrentTeam] = useState<any>(null);
+  const [currentMatchup, setCurrentMatchup] = useState<Matchup | null>(null);
+  const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
   const [homeScore, setHomeScore] = useState<number | null>(0);
   const [awayScore, setAwayScore] = useState<number | null>(0);
-  const [matchupForm, setMatchupForm] = useState<any>(emptyMatchup);
+  const [matchupForm, setMatchupForm] = useState<MatchupForm>(emptyMatchup);
 
   const saveMatchup = async () => {
       try {
@@ -183,8 +214,9 @@ const Admin = () => {
           }
           setShowMatchupDialog(false);
           fetchData();
-      } catch (error: any) {
-          let detail = error.response?.data?.message || t('admin.errors.default');
+      } catch (error: unknown) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          let detail = (error as any).response?.data?.message || t('admin.errors.default');
           if (detail === 'SAME_TEAM_CONFLICT') detail = t('admin.errors.sameTeam');
           if (detail === 'TEAM_ALREADY_SCHEDULED') detail = t('admin.errors.teamScheduled');
           toast.current?.show({severity:'error', summary: t('admin.error'), detail});
@@ -224,6 +256,22 @@ const Admin = () => {
       } catch (error) { console.error(error); }
   }
 
+  const handleDeleteUser = (id: number, type: 'soft' | 'hard') => {
+    confirmDialog({
+        message: type === 'soft' ? t('admin.confirmSoftDelete') : t('admin.confirmHardDelete'),
+        header: t('admin.confirm.title'),
+        icon: 'pi pi-exclamation-triangle',
+        acceptClassName: type === 'hard' ? 'p-button-danger' : 'p-button-warning',
+        accept: async () => {
+            try {
+                await api.delete(`/api/admin/users/${id}?type=${type}`, { headers: { Authorization: `Bearer ${token}` } });
+                toast.current?.show({severity:'success', summary: t('admin.success'), detail: t('admin.userDeleted')});
+                fetchData();
+            } catch (error) { console.error(error); }
+        }
+    });
+  }
+
   const filteredMatchups = matchups.filter(m => m.week === adminSelectedWeek && m.stage === adminSelectedStage);
   const weekOptions = Array.from({ length: 18 }, (_, i) => ({ label: `${t('admin.form.week')} ${i + 1}`, value: i + 1 }));
 
@@ -241,7 +289,7 @@ const Admin = () => {
               </div>
               <div className="flex flex-col gap-4">
                   <label className="font-bold text-xs text-gray-500">{t('admin.form.week')}</label>
-                  <InputNumber value={matchupForm.week} onValueChange={(e) => setMatchupForm({...matchupForm, week: e.value})} min={1} max={22} />
+                  <InputNumber value={matchupForm.week} onValueChange={(e) => setMatchupForm({...matchupForm, week: e.value ?? 1})} min={1} max={22} />
               </div>
               <div className="flex flex-col gap-4">
                   <label className="font-bold text-xs text-gray-500">{t('admin.form.away')}</label>
@@ -413,13 +461,23 @@ const Admin = () => {
                                         <Column field="username" header={t('landing.username')} sortable className="text-lg font-black  tracking-wider px-10 py-8"></Column>
                                         <Column field="email" header="Email" className="text-sm font-medium px-10 py-8 text-gray-400"></Column>
                                         <Column field="score" header="Points" sortable className="text-4xl font-black text-primary px-10 py-8" align="center"></Column>
-                                        <Column header="Status" body={(rowData) => (
+                                        <Column header="Status" body={(rowData: User) => (
                                             <div className="flex items-center gap-8 px-10 py-8">
-                                                <InputSwitch checked={rowData.isActive} onChange={(e) => {
+                                                <InputSwitch checked={rowData.isActive} disabled={!!rowData.deletedAt} onChange={(e) => {
                                                     api.post('/api/admin/users/toggle-status', { id: rowData.id, isActive: e.value }, { headers: { Authorization: `Bearer ${token}` } })
                                                         .then(() => fetchData());
                                                 }} />
-                                                <Tag severity={rowData.isActive ? 'success' : 'danger'} value={rowData.isActive ? t('admin.userStatus.active') : t('admin.userStatus.off')} className="text-[10px] font-black px-5 py-3 shadow-6" />
+                                                <Tag severity={rowData.deletedAt ? 'danger' : (rowData.isActive ? 'success' : 'warning')} 
+                                                     value={rowData.deletedAt ? t('admin.userStatus.deleted') : (rowData.isActive ? t('admin.userStatus.active') : t('admin.userStatus.off'))} 
+                                                     className="text-[10px] font-black px-5 py-3 shadow-6" />
+                                            </div>
+                                        )} align="center"></Column>
+                                        <Column header="Actions" body={(rowData: User) => (
+                                            <div className="flex gap-3 px-10 py-8">
+                                                {!rowData.deletedAt && (
+                                                    <Button icon="pi pi-user-minus" rounded text severity="warning" tooltip={t('admin.softDelete')} onClick={() => handleDeleteUser(rowData.id, 'soft')} />
+                                                )}
+                                                <Button icon="pi pi-user-times" rounded text severity="danger" tooltip={t('admin.hardDelete')} onClick={() => handleDeleteUser(rowData.id, 'hard')} />
                                             </div>
                                         )} align="center"></Column>
                                     </DataTable>

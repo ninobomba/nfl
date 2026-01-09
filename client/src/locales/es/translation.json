@@ -58,6 +58,9 @@
     "updated": "Registro actualizado correctamente",
     "created": "Registro creado correctamente",
     "deleted": "Registro eliminado correctamente",
+    "userDeleted": "Usuario eliminado correctamente",
+    "softDelete": "Eliminado suave",
+    "hardDelete": "Eliminado permanente",
     "status": "Estado actual",
     "result": "Resultado del juego",
     "editTeam": "Editar detalles del equipo",
@@ -68,6 +71,8 @@
     "finished": "Finalizado",
     "pending": "Pendiente",
     "confirmDelete": "¿Estás seguro de que quieres eliminar este partido?",
+    "confirmSoftDelete": "¿Estás seguro de que quieres eliminar (soft-delete) a este usuario? Será desactivado pero se mantendrá en la base de datos.",
+    "confirmHardDelete": "¿Estás seguro de que quieres eliminar permanentemente (hard-delete) a este usuario? TODOS sus datos (picks, logs, etc.) serán borrados. Esta acción no se puede deshacer.",
     "confirmClear": "¿Estás seguro de que quieres borrar todo el calendario? Esto no se puede deshacer.",
     "form": {
       "stage": "Etapa de temporada",
@@ -106,7 +111,8 @@
     },
     "userStatus": {
       "active": "ACTIVO",
-      "off": "INACTIVO"
+      "off": "INACTIVO",
+      "deleted": "ELIMINADO"
     },
     "logs": {
       "timestamp": "Marca de tiempo",

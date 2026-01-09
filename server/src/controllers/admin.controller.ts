@@ -20,10 +20,26 @@ export const simulateGame = async (req: Request, res: Response) => {
       return;
     }
 
+    const points = POINTS_MAP[matchup.stage] || 1;
+
+    // If game was already finished, we need to REVERSE previous points
+    if (matchup.isFinished) {
+        const previousCorrectPicks = await prisma.pick.findMany({
+            where: { matchupId, isCorrect: true }
+        });
+
+        for (const pick of previousCorrectPicks) {
+            await prisma.user.update({
+                where: { id: pick.userId },
+                data: { score: { decrement: points } }
+            });
+        }
+    }
+
     let winnerId = null;
-    if (homeScore > awayScore) {
+    if (Number(homeScore) > Number(awayScore)) {
         winnerId = matchup.homeTeamId;
-    } else if (awayScore > homeScore) {
+    } else if (Number(awayScore) > Number(homeScore)) {
         winnerId = matchup.awayTeamId;
     }
 
@@ -48,13 +64,19 @@ export const simulateGame = async (req: Request, res: Response) => {
       });
 
       if (isCorrect) {
-        const points = POINTS_MAP[matchup.stage] || 1;
         await prisma.user.update({
           where: { id: pick.userId },
           data: { score: { increment: points } },
         });
       }
     }
+
+    await prisma.auditLog.create({
+        data: { 
+            action: 'GAME_SIMULATED', 
+            details: `Matchup ${matchupId}: ${awayScore}-${homeScore}. Idempotency handled.` 
+        }
+    });
 
     res.json({ message: 'Game simulated and scores updated' });
   } catch (error) {
@@ -167,10 +189,39 @@ export const updateMatchup = async (req: Request, res: Response) => {
 export const deleteMatchup = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        await prisma.pick.deleteMany({ where: { matchupId: Number(id) } });
-        await prisma.matchup.delete({ where: { id: Number(id) } });
+        const matchupId = Number(id);
+
+        const matchup = await prisma.matchup.findUnique({ where: { id: matchupId } });
+        if (!matchup) {
+            res.status(404).json({ message: "Matchup not found" });
+            return;
+        }
+
+        // If game was finished, reverse points for users who won
+        if (matchup.isFinished) {
+            const points = POINTS_MAP[matchup.stage] || 1;
+            const correctPicks = await prisma.pick.findMany({
+                where: { matchupId, isCorrect: true }
+            });
+
+            for (const pick of correctPicks) {
+                await prisma.user.update({
+                    where: { id: pick.userId },
+                    data: { score: { decrement: points } }
+                });
+            }
+        }
+
+        await prisma.pick.deleteMany({ where: { matchupId } });
+        await prisma.matchup.delete({ where: { id: matchupId } });
+
+        await prisma.auditLog.create({
+            data: { action: 'MATCHUP_DELETED', details: `Matchup ID: ${id}, Was Finished: ${matchup.isFinished}` }
+        });
+
         res.json({ message: "DELETED" });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: "SERVER_ERROR" });
     }
 }
@@ -216,11 +267,55 @@ export const updateSetting = async (req: Request, res: Response) => {
 export const getUsers = async (req: Request, res: Response) => {
     try {
         const users = await prisma.user.findMany({
-            select: { id: true, username: true, email: true, score: true, role: true, isActive: true, createdAt: true }
+            select: { id: true, username: true, email: true, score: true, role: true, isActive: true, createdAt: true, deletedAt: true }
         });
         res.json(users);
     } catch (error) {
         res.status(500).json({ message: "Error" });
+    }
+}
+
+export const deleteUser = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { type } = req.query; // 'soft' or 'hard'
+
+        const userToDelete = await prisma.user.findUnique({ where: { id: Number(id) } });
+        if (!userToDelete) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+
+        if (type === 'hard') {
+            await prisma.$transaction([
+                prisma.pick.deleteMany({ where: { userId: Number(id) } }),
+                prisma.passwordReset.deleteMany({ where: { userId: Number(id) } }),
+                prisma.auditLog.deleteMany({ where: { userId: Number(id) } }),
+                prisma.user.delete({ where: { id: Number(id) } })
+            ]);
+            res.json({ message: "USER_HARD_DELETED" });
+        } else {
+            // Soft delete: set deletedAt, deactivate AND rename to free up unique fields
+            const timestamp = Date.now();
+            await prisma.user.update({
+                where: { id: Number(id) },
+                data: { 
+                    deletedAt: new Date(),
+                    isActive: false,
+                    username: `${userToDelete.username}_del_${timestamp}`,
+                    email: `${userToDelete.email}_del_${timestamp}`
+                }
+            });
+
+            await prisma.auditLog.create({
+                data: { action: 'USER_SOFT_DELETED', details: `User ID: ${id}, Old Username: ${userToDelete.username}` }
+            });
+
+            res.json({ message: "USER_SOFT_DELETED" });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error deleting user" });
     }
 }
 
@@ -231,6 +326,11 @@ export const toggleUserStatus = async (req: Request, res: Response) => {
             where: { id: Number(id) },
             data: { isActive: Boolean(isActive) }
         });
+
+        await prisma.auditLog.create({
+            data: { action: 'USER_STATUS_TOGGLED', details: `User ID: ${id}, New Status: ${isActive}` }
+        });
+
         res.json(user);
     } catch (error) {
         res.status(500).json({ message: "Error" });

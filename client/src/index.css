@@ -24,7 +24,6 @@ body {
   font-family: 'Comfortaa', cursive !important;
 }
 
-/* Elevación sutil en hover para todas las tarjetas */
 .p-card {
   transition: transform 0.3s ease, box-shadow 0.3s ease !important;
 }

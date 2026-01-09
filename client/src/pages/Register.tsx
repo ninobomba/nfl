@@ -31,7 +31,7 @@ const Register = () => {
       });
       dispatch(setCredentials(response.data));
       navigate('/picks');
-    } catch (error) {
+    } catch {
       alert('Registration failed. Check if username or email is already taken.');
     }
   };

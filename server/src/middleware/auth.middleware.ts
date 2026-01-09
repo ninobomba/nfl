@@ -19,7 +19,7 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as { userId: number };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as any;
     
     // Fetch user from DB to get latest role and active status
     const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
@@ -41,6 +41,7 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
 };
 
 export const isAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
+    console.log(`Checking admin role for user: ${req.user?.userId}, Role: ${req.user?.role}`);
     if (req.user?.role !== 'ADMIN') {
         res.status(403).json({ message: 'Admin access required' });
         return;

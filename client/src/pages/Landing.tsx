@@ -32,11 +32,13 @@ const Landing = () => {
       } else {
           navigate('/picks');
       }
-    } catch (error: any) {
-      if (!error.response) {
+    } catch (error: unknown) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err = error as any;
+      if (!err.response) {
           alert('Network error: Is the server running?');
       } else {
-          const msg = error.response.data?.message || 'Login failed';
+          const msg = err.response.data?.message || 'Login failed';
           alert(`Server error: ${msg}`);
       }
     }

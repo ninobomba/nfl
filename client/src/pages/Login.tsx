@@ -40,11 +40,13 @@ const Login = ({ isAdminLogin = false }: LoginProps) => {
       } else {
           navigate('/picks');
       }
-    } catch (error: any) {
-      if (!error.response) {
+    } catch (error: unknown) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err = error as any;
+      if (!err.response) {
           toast.current?.show({severity:'error', summary: 'Network Error', detail: 'Is the server running?', life: 3000});
       } else {
-          const msg = error.response.data?.message || 'Login failed';
+          const msg = err.response.data?.message || 'Login failed';
           toast.current?.show({severity:'error', summary: 'Error', detail: msg, life: 3000});
       }
     }

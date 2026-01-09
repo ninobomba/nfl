@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef } from 'react';
-import axios from 'axios';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import api from '../api/axios';
 import { useAppSelector } from '../store/hooks';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -58,30 +58,31 @@ const Dashboard = () => {
 
   const playoffStages = ['WILDCARD', 'DIVISIONAL', 'CONFERENCE'];
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const [matchupsRes, picksRes] = await Promise.all([
-          axios.get('http://localhost:3000/api/matchups', { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get('http://localhost:3000/api/picks', { headers: { Authorization: `Bearer ${token}` } })
+          api.get('/api/matchups', { headers: { Authorization: `Bearer ${token}` } }),
+          api.get('/api/picks', { headers: { Authorization: `Bearer ${token}` } })
       ]);
       setMatchups(matchupsRes.data);
-      setUserPicks(picksRes.data.map((p: any) => ({ matchupId: p.matchupId, selectedTeamId: p.selectedTeamId })));
+      setUserPicks(picksRes.data.map((p: { matchupId: number; selectedTeamId: number }) => ({ matchupId: p.matchupId, selectedTeamId: p.selectedTeamId })));
     } catch (error) {
+      console.error(error); // Log error instead of unused var
       toast.current?.show({severity:'error', summary: 'Error', detail: 'Could not fetch data'});
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchData();
-  }, [token]);
+  }, [fetchData]);
 
   const handlePick = async (matchupId: number, selectedTeamId: number, teamName: string) => {
     try {
-      await axios.post(
-        'http://localhost:3000/api/picks',
+      await api.post(
+        '/api/picks',
         { matchupId, selectedTeamId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -91,6 +92,7 @@ const Dashboard = () => {
           return [...filtered, { matchupId, selectedTeamId }];
       });
     } catch (error) {
+      console.error(error); // Log error
       toast.current?.show({severity:'error', summary: t('admin.error'), detail: 'Error', life: 3000});
     }
   };

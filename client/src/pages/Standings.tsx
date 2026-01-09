@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api/axios';
 import { useAppSelector } from '../store/hooks';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -35,7 +35,7 @@ const Standings = () => {
     const fetchStandings = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://localhost:3000/api/standings', {
+        const response = await api.get('/api/standings', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setStandings(response.data);

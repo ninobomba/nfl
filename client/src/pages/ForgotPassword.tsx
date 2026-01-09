@@ -25,7 +25,7 @@ const ForgotPassword = () => {
       });
       alert(t('landing.reset.keySent'));
       setStep(2);
-    } catch (error) {
+    } catch {
       alert('Error requesting key');
     }
   };
@@ -40,8 +40,10 @@ const ForgotPassword = () => {
       });
       alert(t('landing.reset.success'));
       navigate('/login');
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Error resetting password');
+    } catch (error: unknown) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const msg = (error as any).response?.data?.message || 'Error resetting password';
+      alert(msg);
     }
   };
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api/axios';
 import { useAppSelector } from '../store/hooks';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -34,10 +34,10 @@ const Results = () => {
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/matchups', {
+        const response = await api.get('/api/matchups', {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setResults(response.data.filter((m: any) => m.isFinished));
+        setResults(response.data.filter((m: Matchup) => m.isFinished));
       } catch (error) {
         console.error('Error fetching results', error);
       }

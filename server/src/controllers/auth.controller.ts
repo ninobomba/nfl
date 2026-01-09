@@ -49,7 +49,6 @@ export const register = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
-    console.log(`Login attempt for: "${username}"`);
     const trimmedUsername = username?.trim();
 
     const user = await prisma.user.findUnique({ where: { username: trimmedUsername } });

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState, useCallback } from 'react';
+import api from '../api/axios';
 import { useAppSelector } from '../store/hooks';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -31,31 +31,37 @@ const Leaderboard = () => {
 
   const weekOptions = Array.from({ length: 18 }, (_, i) => ({ label: `${t('admin.form.week')} ${i + 1}`, value: i + 1 }));
 
-  const fetchGlobal = async () => {
+  const fetchGlobal = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/picks/leaderboard', {
+      const response = await api.get('/api/picks/leaderboard', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(response.data);
     } catch (error) { console.error(error); }
-  };
+  }, [token]);
 
-  const fetchWeekly = async () => {
+  const fetchWeekly = useCallback(async () => {
       try {
-          const response = await axios.get(`http://localhost:3000/api/picks/weekly?week=${selectedWeek}`, {
+          const response = await api.get(`/api/picks/weekly?week=${selectedWeek}`, {
               headers: { Authorization: `Bearer ${token}` }
           });
           setWeeklyUsers(response.data);
       } catch (error) { console.error(error); }
-  }
-
-  useEffect(() => {
-    fetchGlobal();
-  }, [token]);
-
-  useEffect(() => {
-      fetchWeekly();
   }, [token, selectedWeek]);
+
+  useEffect(() => {
+    const run = async () => {
+      await fetchGlobal();
+    };
+    run();
+  }, [fetchGlobal]);
+
+  useEffect(() => {
+      const run = async () => {
+        await fetchWeekly();
+      };
+      run();
+  }, [fetchWeekly]);
 
   return (
     <div className="max-w-6xl mx-auto mt-12 px-4 pb-12">

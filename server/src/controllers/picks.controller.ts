@@ -65,6 +65,7 @@ export const makePick = async (req: AuthRequest, res: Response) => {
 export const getLeaderboard = async (req: AuthRequest, res: Response) => {
     try {
         const users = await prisma.user.findMany({
+            where: { isActive: true, deletedAt: null },
             select: { id: true, username: true, score: true },
             orderBy: { score: 'desc' }
         });
@@ -77,17 +78,18 @@ export const getLeaderboard = async (req: AuthRequest, res: Response) => {
 export const getWeeklyLeaderboard = async (req: AuthRequest, res: Response) => {
     try {
         const week = Number(req.query.week);
-        const stage = req.query.stage as any || 'REGULAR';
+        const stage = (req.query.stage as string) || 'REGULAR';
 
         if (!week) {
             res.status(400).json({ message: "Semana requerida" });
             return;
         }
 
-        // Obtener todos los picks de la semana
+        // Obtener todos los picks de la semana para usuarios activos y no borrados
         const picks = await prisma.pick.findMany({
             where: {
-                matchup: { week, stage }
+                matchup: { week, stage },
+                user: { isActive: true, deletedAt: null }
             },
             include: {
                 user: { select: { id: true, username: true } }

@@ -46,7 +46,7 @@ async function main() {
   console.log('Sembrando datos...');
 
   // Sembrar Usuario Admin
-  const adminPassword = await bcrypt.hash('aquamosh#!?2026', 10);
+  const adminPassword = await bcrypt.hash('admin', 10);
   await prisma.user.upsert({
     where: { username: 'admin' },
     update: { password: adminPassword },
@@ -55,6 +55,39 @@ async function main() {
       email: 'admin@nfl.com',
       password: adminPassword,
       role: 'ADMIN',
+    },
+  });
+
+  // Eliminar usuarios que no sean admin ni user (para limpieza previa a crear user)
+  // Primero registros relacionados para evitar errores de FK
+  const usersToCleanup = await prisma.user.findMany({
+      where: { username: { notIn: ['admin', 'user'] } },
+      select: { id: true }
+  });
+  const userIds = usersToCleanup.map(u => u.id);
+  
+  await prisma.pick.deleteMany({ where: { userId: { in: userIds } } });
+  await prisma.passwordReset.deleteMany({ where: { userId: { in: userIds } } });
+  await prisma.auditLog.deleteMany({ where: { userId: { in: userIds } } });
+
+  await prisma.user.deleteMany({
+    where: {
+      username: {
+        notIn: ['admin', 'user']
+      }
+    }
+  });
+
+  // Crear usuario User estándar
+  const standardPassword = await bcrypt.hash('user', 10);
+  await prisma.user.upsert({
+    where: { username: 'user' },
+    update: { password: standardPassword },
+    create: {
+      username: 'user',
+      email: 'user@nfl.com',
+      password: standardPassword,
+      role: 'USER',
     },
   });
 
