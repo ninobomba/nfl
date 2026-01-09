@@ -76,7 +76,7 @@ const Leaderboard = () => {
           {/* Pestaña Semanal */}
           <TabPanel header="Weekly Winners" leftIcon="pi pi-calendar-check mr-2">
               <div className="py-6 px-4">
-                  <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-gray-800 bg-opacity-20 p-6 rounded-xl border-1 border-gray-700 gap-4">
+                  <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-gray-800 bg-opacity-20 p-6 rounded-xl border-0 border-gray-700 gap-4">
                       <div>
                           <h2 className="text-2xl font-black  italic tracking-tighter text-primary">Weekly Challenge</h2>
                           <p className="text-sm text-gray-500 font-bold tracking-wider">Tie-breaker: First to submit wins.</p>

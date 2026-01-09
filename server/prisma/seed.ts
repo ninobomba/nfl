@@ -46,7 +46,7 @@ async function main() {
   console.log('Sembrando datos...');
 
   // Sembrar Usuario Admin
-  const adminPassword = await bcrypt.hash('admin', 10);
+  const adminPassword = await bcrypt.hash('aquamosh#!?2026', 10);
   await prisma.user.upsert({
     where: { username: 'admin' },
     update: { password: adminPassword },

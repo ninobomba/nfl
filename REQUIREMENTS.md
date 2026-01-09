@@ -1,55 +1,50 @@
 # Product Requirements Document: NFL Pick'em Lottery
 
 ## 1. Executive Summary
-A comprehensive full-stack web application where users participate in a sport lottery by predicting NFL matchup winners. The system covers the Regular Season, Playoffs, and the Super Bowl, featuring automated scoring, global standings, and a tie-breaking weekly winner system.
+A professional full-stack web application for NFL game predictions. The platform allows users to participate in a "sport lottery" by selecting winners for weekly matchups across the Regular Season, Playoffs, and Super Bowl. It features real-time standings, a global leaderboard with weekly tie-breakers, and a comprehensive administration suite.
 
 ## 2. Technical Stack
-- **Language:** TypeScript (Frontend & Backend).
-- **Frontend:** React (Vite), Redux Toolkit, PrimeReact (UI Component Library), Tailwind CSS.
-- **Backend:** Node.js with Express, JWT (Authentication), Nodemailer (Email services).
+- **Backend:** Node.js, Express, TypeScript (ESM/NodeNext).
 - **Database:** PostgreSQL with Prisma ORM.
-- **i18n:** Full internationalization support for English (EN) and Spanish (ES).
+- **Frontend:** React (Vite), Redux Toolkit, PrimeReact (UI Components), Tailwind CSS.
+- **Localization:** i18next (Full support for English and Spanish).
+- **Authentication:** JWT-based with role-based access control (User/Administrator).
+- **Email:** Nodemailer for bilingual welcome emails and password recovery keys.
+- **API:** Centralized Axios instance with base URL configured via environment variables.
 
 ## 3. Core Features
 
-### 3.1 User Features
-- **Registration/Login:** JWT-based auth. Mandatory unique email and language preference.
-- **Landing Page:** Integrated login form with official NFL branding.
-- **Welcome Email:** Automated bilingual (EN/ES) welcome emails upon registration.
-- **Games Board:** 
-  - Weekly filtering (Weeks 1-18) and Stage filtering (Regular, Playoffs, Super Bowl).
-  - Checkbox-style team selection (one team per matchup).
-  - Visual feedback for correct/incorrect picks and final game scores.
-- **Standings:** Real-time calculated table grouped by Conference and Division (W/L/T, PCT, PF, PA, Net Pts).
-- **Results:** Historical view of all completed games and scores.
-- **Leaderboard:** 
-  - **Global:** Accumulated points over the season.
-  - **Weekly:** Ranking per week with a tie-breaker rule (first to submit wins the tie).
+### 3.1 User Experience
+- **Multilingual UI:** Language selector located at the top-right of every page.
+- **Integrated Access:** Login form integrated directly into the landing page for quick access.
+- **Password Recovery:** Key-based password reset via email with expiration and audit tracking.
+- **Interactive Picks:** Matchup board with checkbox-style team selection. Changes are blocked once a game starts or finishes.
+- **Visual Feedback:** High-quality 60x60px team logos and real-time status indicators (Correct/Incorrect predictions).
+- **Data Tables:** Justified and centered layouts for Standings, Results, and Leaderboards to ensure readability.
 
-### 3.2 Scoring System
-- **Regular Season:** 1 point per correct pick.
-- **Playoffs:** 2 points per correct pick.
-- **Super Bowl:** 3 points for the correct winner.
+### 3.2 Administrator Suite
+- **Modular Interface:** Two-tab main structure:
+    - **Overview:** Real-time system statistics (Total Matchups, Finished Games, Active Users).
+    - **Settings:** Master control center with sub-tabs for Matchups, Teams, Users, Audit Logs, and Themes.
+- **Matchup Management (CRUD):** Manual creation, editing, and deletion of games for any season stage.
+- **Result Entry:** Official score input dialog that automatically triggers user point calculations.
+- **Dynamic Theming:** Global theme switcher with access to the full PrimeReact catalog (40+ themes).
+- **Audit System:** Comprehensive bitácora (logs) tracking security and management operations.
 
-### 3.3 Admin Features
-- **Matchup Management (CRUD):** 
-  - Manual creation/editing of any game.
-  - Validation: Max 18 games per week.
-  - Validation: One game per team per week.
-- **Result Entry:** Interface to input final scores, which triggers automatic point distribution.
-- **User Management:** View all users and toggle account status (Active/Disabled).
-- **Team Management:** Edit team properties (City, Name, Conference, Division).
-- **Dynamic Theming:** Admin-only dropdown to switch the application theme globally using the full PrimeReact catalog.
-- **System Reset:** Tool to clear all games and reset all user scores.
+## 4. System Rules & Validations
+- **Scoring:** Regular Season (1pt), Playoffs (2pts), Super Bowl (3pts).
+- **Weekly Tie-Breaker:** In case of equal points, the user who submitted their final pick first wins the week.
+- **Matchup Validations:**
+    - Maximum of 18 games per NFL week.
+    - One game per team per week.
+    - A team cannot be scheduled to play against itself.
+- **Security:**
+    - Admin routes protected by `isAdmin` middleware.
+    - Unique email and username enforced during registration.
+    - Password reset keys valid for 15 minutes.
 
-## 4. UI/UX Concept
-- **Theme:** Professional sports data portal aesthetic using PrimeReact "Lara Dark Blue" by default.
-- **Assets:** Official NFL.com CDN logos processed and hosted locally at 60x60px.
-- **Layout:** Compact, data-rich tables with row highlighting and responsive design.
-
-## 5. Data Models
-- **User:** ID, Username, Email, PasswordHash, TotalScore, Role (USER/ADMIN), isActive.
-- **Team:** ID, Name, City, Abbreviation, LogoUrl, Conference, Division.
-- **Matchup:** ID, Stage, Week, HomeTeam, AwayTeam, Scores, WinnerID, isFinished.
-- **Pick:** ID, User, Matchup, SelectedTeam, isCorrect, Timestamps (for tie-breaking).
-- **AppSetting:** Key-Value store for global configs like the active theme.
+## 5. UI/UX Principles
+- **Font:** Comfortaa Regular (Global).
+- **Responsiveness:** Mobile-first approach. Dialogs use dynamic breakpoints (95vw on mobile).
+- **Visual Hierarchy:** Consistent use of "Surface" classes for theme adaptability. Elimination of forced uppercase for better legibilidad.
+- **Feedback:** Use of PrimeReact Toasts and Skeletons to manage loading states and user notifications.

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import axios from 'axios';
+import api from './api/axios';
 import { useAppSelector } from './store/hooks';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -33,7 +33,7 @@ function App() {
   useEffect(() => {
     const fetchTheme = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/theme');
+        const response = await api.get('/api/theme');
         const theme = response.data.theme;
         const themeLink = document.getElementById('app-theme') as HTMLLinkElement;
         if (themeLink) {

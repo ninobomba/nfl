@@ -42,6 +42,8 @@
   "admin": {
     "panel": "Administrator Control Panel",
     "manage": "Management of Games, Teams and Users",
+    "overview": "Overview",
+    "settings": "Settings",
     "tabGames": "Matchups Management",
     "tabTeams": "NFL Teams",
     "tabUsers": "Registered Users",
@@ -52,12 +54,12 @@
     "theme": "Application theme:",
     "themeNote": "Note: Changing the theme will affect the visual appearance for ALL users across the entire application instantly.",
     "success": "Success",
-    "error": "Validation error",
-    "updated": "Record updated successfully",
-    "created": "Record created successfully",
-    "deleted": "Record deleted successfully",
-    "status": "Current status",
-    "result": "Game result",
+    "error": "Validation Error",
+    "updated": "Record Updated Successfully",
+    "created": "Record Created Successfully",
+    "deleted": "Record Deleted Successfully",
+    "status": "Current Status",
+    "result": "Game Result",
     "editTeam": "Edit Team Details",
     "city": "City",
     "name": "Team Name",
@@ -65,17 +67,59 @@
     "div": "Division",
     "finished": "Finished",
     "pending": "Pending",
+    "confirmDelete": "Are you sure you want to delete this matchup?",
+    "confirmClear": "Are you sure you want to clear the entire schedule? This cannot be undone.",
     "form": {
-      "stage": "Season stage",
-      "week": "NFL week",
-      "away": "Visiting team",
-      "home": "Home team",
-      "date": "Scheduled date and time",
-      "cancel": "Cancel action",
-      "save": "Save changes",
-      "create": "Create matchup",
-      "submit": "Submit final score",
-      "enterResult": "Enter official game result"
-    }
+      "stage": "Season Stage",
+      "week": "NFL Week",
+      "away": "Visiting Team",
+      "home": "Home Team",
+      "date": "Scheduled Date and Time",
+      "cancel": "Cancel Action",
+      "save": "Save Changes",
+      "create": "Create Matchup",
+      "submit": "Submit Final Score",
+      "enterResult": "Enter Official Game Result"
+    },
+    "stats": {
+        "totalMatchups": "Total Matchups",
+        "finishedGames": "Finished Games",
+        "activeUsers": "Active Users",
+        "realTime": "Real-time system statistics"
+    },
+    "stages": {
+      "regular": "Regular Season",
+      "wildcard": "Wild Card",
+      "divisional": "Divisional",
+      "conference": "Conference",
+      "superbowl": "Super Bowl"
+    },
+    "errors": {
+      "sameTeam": "A team cannot play against itself",
+      "teamScheduled": "One of the teams already has a game this week",
+      "default": "Error"
+    },
+    "confirm": {
+      "title": "Confirm",
+      "delete": "Are you sure you want to delete this record?",
+      "clear": "Are you sure you want to clear all data?"
+    },
+    "userStatus": {
+      "active": "ACTIVE",
+      "off": "OFF"
+    },
+    "logs": {
+      "timestamp": "Timestamp",
+      "user": "User",
+      "action": "Action",
+      "details": "Details",
+      "system": "SYSTEM"
+    },
+    "users": {
+      "email": "Email",
+      "points": "Points",
+      "status": "Status"
+    },
+    "scoreBtn": "Score"
   }
 }

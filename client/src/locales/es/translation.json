@@ -42,6 +42,8 @@
   "admin": {
     "panel": "Panel de control administrativo",
     "manage": "Gestión integral de juegos, equipos y usuarios",
+    "overview": "Resumen",
+    "settings": "Configuración",
     "tabGames": "Gestión de partidos",
     "tabTeams": "Equipos de la NFL",
     "tabUsers": "Usuarios registrados",
@@ -50,7 +52,7 @@
     "newGame": "Crear nuevo partido",
     "clearAll": "Borrar datos de temporada",
     "theme": "Tema de la aplicación:",
-    "themeNote": "Nota: Cambiar el tema afectará la apariencia visual de TODOS los usuarios en toda la aplicación al instante.",
+    "themeNote": "Nota: Cambiar el tema afectará la apariencia visual de todos los usuarios en toda la aplicación al instante.",
     "success": "Éxito",
     "error": "Error de validación",
     "updated": "Registro actualizado correctamente",
@@ -65,6 +67,8 @@
     "div": "División",
     "finished": "Finalizado",
     "pending": "Pendiente",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar este partido?",
+    "confirmClear": "¿Estás seguro de que quieres borrar todo el calendario? Esto no se puede deshacer.",
     "form": {
       "stage": "Etapa de temporada",
       "week": "Semana NFL",
@@ -76,6 +80,46 @@
       "create": "Crear partido",
       "submit": "Subir marcador final",
       "enterResult": "Ingresar resultado oficial"
-    }
+    },
+    "stats": {
+        "totalMatchups": "Total de partidos",
+        "finishedGames": "Juegos finalizados",
+        "activeUsers": "Usuarios activos",
+        "realTime": "Estadísticas del sistema en tiempo real"
+    },
+    "stages": {
+      "regular": "Temporada Regular",
+      "wildcard": "Comodines",
+      "divisional": "Divisional",
+      "conference": "Conferencia",
+      "superbowl": "Super Bowl"
+    },
+    "errors": {
+      "sameTeam": "Un equipo no puede jugar contra sí mismo",
+      "teamScheduled": "Uno de los equipos ya tiene un juego esta semana",
+      "default": "Error"
+    },
+    "confirm": {
+      "title": "Confirmar",
+      "delete": "¿Estás seguro de eliminar este registro?",
+      "clear": "¿Estás seguro de borrar todos los datos?"
+    },
+    "userStatus": {
+      "active": "ACTIVO",
+      "off": "INACTIVO"
+    },
+    "logs": {
+      "timestamp": "Marca de tiempo",
+      "user": "Usuario",
+      "action": "Acción",
+      "details": "Detalles",
+      "system": "SISTEMA"
+    },
+    "users": {
+      "email": "Correo",
+      "points": "Puntos",
+      "status": "Estado"
+    },
+    "scoreBtn": "Puntaje"
   }
 }

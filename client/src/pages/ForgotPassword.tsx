@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axios';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
@@ -19,14 +19,13 @@ const ForgotPassword = () => {
   const handleRequestKey = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3000/api/auth/forgot-password', {
+      await api.post('/api/auth/forgot-password', {
         email,
         lang: i18n.language.split('-')[0]
       });
       alert(t('landing.reset.keySent'));
       setStep(2);
     } catch (error) {
-      console.error(error);
       alert('Error requesting key');
     }
   };
@@ -34,7 +33,7 @@ const ForgotPassword = () => {
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3000/api/auth/reset-password', {
+      await api.post('/api/auth/reset-password', {
         email,
         key,
         newPassword

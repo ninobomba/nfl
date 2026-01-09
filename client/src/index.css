@@ -6,51 +6,56 @@
   font-family: 'Comfortaa', cursive;
   line-height: 1.6;
   font-weight: 400;
-  color-scheme: dark;
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-content: center;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--surface-ground);
+  color: var(--text-color);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease;
 }
 
-/* PrimeReact Overrides for better spacing */
+/* PrimeReact Customizations */
 .p-component {
   font-family: 'Comfortaa', cursive !important;
 }
 
+/* Elevación sutil en hover para todas las tarjetas */
+.p-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.p-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important;
+}
+
+/* Estilo de tablas optimizado */
 .p-datatable .p-datatable-tbody > tr > td {
-  padding: 1.25rem 1rem !important; /* Espaciado vertical generoso en tablas */
+  padding: 1.25rem 1rem !important;
+  border-bottom: 1px solid var(--surface-border) !important;
 }
 
 .p-datatable .p-datatable-thead > tr > th {
-  padding: 1rem !important;
-  background: rgba(255, 255, 255, 0.02) !important;
+  background: var(--surface-section) !important;
+  padding: 1.25rem 1rem !important;
   font-weight: 700 !important;
-  font-size: 0.75rem;
-  letter-spacing: 0.15em;
+  border-bottom: 2px solid var(--primary-color) !important;
 }
 
-.p-card .p-card-title {
-  font-weight: 900 !important;
-  letter-spacing: -0.02em;
-  margin-bottom: 0.5rem !important;
-}
-
-.p-card .p-card-subtitle {
-  margin-bottom: 1.5rem !important;
-  opacity: 0.6;
-}
-
+/* Botones más modernos */
 .p-button {
-  transition: transform 0.2s, box-shadow 0.2s !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em !important;
 }
 
-.p-button:active {
-  transform: scale(0.98);
+/* Inputs con estilo consistente */
+.p-inputtext, .p-password input, .p-dropdown {
+  border-radius: 10px !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
 }

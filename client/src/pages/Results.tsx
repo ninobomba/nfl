@@ -49,7 +49,7 @@ const Results = () => {
     <div className="max-w-7xl mx-auto mt-4 md:mt-16 px-4 pb-20 font-comfortaa flex flex-col items-center">
       <Card title={t('nav.results')} subTitle="Historical season game scores and official final results" className="w-fit shadow-10 border-none overflow-hidden text-center rounded-3xl">
         <div className="w-fit mx-auto px-4 md:px-16 py-10">
-            <DataTable value={results} stripedRows rowHover paginator rows={15} sortField="week" sortOrder={-1} className="border-1 border-gray-800 rounded-2xl overflow-hidden shadow-4">
+            <DataTable value={results} stripedRows rowHover paginator rows={15} sortField="week" sortOrder={-1} className="border-0 border-gray-800 rounded-2xl overflow-hidden shadow-4">
                 <Column field="week" header="WK" style={{width: '6rem'}} sortable className="font-black text-sm py-6 px-6 text-gray-500" align="center" headerClassName="justify-content-center"></Column>
                 
                 {/* Away Team Section */}

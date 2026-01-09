@@ -62,7 +62,7 @@ const Layout = ({ children }: { children?: React.ReactNode }) => {
   const start = (
     <div className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-all" onClick={() => navigate('/')}>
         <img 
-            src="https://static.www.nfl.com/league/api/clubs/logos/NFL.svg" 
+            src="/images/nfl-logo.png" 
             alt="NFL" 
             className="w-10 h-10"
         />
