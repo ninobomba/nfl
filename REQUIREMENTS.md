@@ -1,4 +1,4 @@
-# Product Requirements Document: NFL Pick'em Lottery
+# Product Requirements Document: NFL Ultimate Challenge
 
 ## 1. Executive Summary
 A professional full-stack web application for NFL game predictions. The platform allows users to participate in a "sport lottery" by selecting winners for weekly matchups across the Regular Season, Playoffs, and Super Bowl. It features real-time standings, a global leaderboard with weekly tie-breakers, and a comprehensive administration suite.

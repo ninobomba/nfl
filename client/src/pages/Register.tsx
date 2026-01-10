@@ -44,9 +44,9 @@ const Register = () => {
   const title = (
     <div className="flex flex-col items-center gap-6 mb-4">
         <img 
-          src="/images/nfl-logo.png" 
+          src="/images/nfl-logo-60x80.png" 
           alt="NFL Logo" 
-          className="w-16 h-16"
+          className="w-12 h-16"
         />
         <span className="text-2xl font-black italic tracking-tighter text-white">{t('landing.register')}</span>
     </div>
@@ -128,7 +128,7 @@ const Register = () => {
 
       <footer className="py-8 text-center opacity-30">
           <span className="text-gray-600 text-[10px] font-black tracking-[0.5em]">
-              NFL Pick'em Lottery © 2026
+              NFL Ultimate Challenge © 2026
           </span>
       </footer>
     </div>

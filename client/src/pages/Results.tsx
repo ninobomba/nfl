@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { useAppSelector } from '../store/hooks';
+import { getLogoUrl } from '../utils/logoUtils';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
@@ -47,7 +48,9 @@ const Results = () => {
 
   return (
     <div className="max-w-7xl mx-auto mt-4 md:mt-16 px-4 pb-20 font-comfortaa flex flex-col items-center">
-      <Card title={t('nav.results')} subTitle="Historical season game scores and official final results" className="w-fit shadow-10 border-none overflow-hidden text-center rounded-3xl">
+      <Card title={t('nav.results')}
+            subTitle="Historical season game scores and official final results"
+            className="w-fit shadow-10 border-none overflow-hidden text-center rounded-3xl">
         <div className="w-fit mx-auto px-4 md:px-16 py-10">
             <DataTable value={results} stripedRows rowHover paginator rows={15} sortField="week" sortOrder={-1} className="border-0 border-gray-800 rounded-2xl overflow-hidden shadow-4">
                 <Column field="week" header="WK" style={{width: '6rem'}} sortable className="font-black text-sm py-6 px-6 text-gray-500" align="center" headerClassName="justify-content-center"></Column>
@@ -55,7 +58,7 @@ const Results = () => {
                 {/* Away Team Section */}
                 <Column header="" body={(row) => (
                     <div className="py-6 px-4">
-                        <img src={row.awayTeam.logoUrl} className="w-14 h-14 object-contain" alt="" />
+                        <img src={getLogoUrl(row.awayTeam.logoUrl, '30')} className="w-8 h-8 object-contain" alt="" />
                     </div>
                 )} style={{width: '7rem'}} align="right" headerClassName="justify-content-end"></Column>
                 
@@ -80,7 +83,7 @@ const Results = () => {
                 
                 <Column header="" body={(row) => (
                     <div className="py-6 px-4">
-                        <img src={row.homeTeam.logoUrl} className="w-14 h-14 object-contain" alt="" />
+                        <img src={getLogoUrl(row.homeTeam.logoUrl, '30')} className="w-8 h-8 object-contain" alt="" />
                     </div>
                 )} style={{width: '7rem'}} align="left" headerClassName="justify-content-start"></Column>
             </DataTable>

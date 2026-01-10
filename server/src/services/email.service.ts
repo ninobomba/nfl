@@ -8,13 +8,13 @@ interface WelcomeEmailParams {
 
 const templates = {
   en: {
-    subject: "Welcome to NFL Pick'em Lottery!",
+    subject: "Welcome to NFL Ultimate Challenge!",
     title: "Welcome aboard, {username}!",
     body: "We are thrilled to have you in our league. Get ready to make your picks for the upcoming NFL games and climb the leaderboard!",
     button: "Go to Dashboard"
   },
   es: {
-    subject: "¡Bienvenido a la Lotería NFL Pick'em!",
+    subject: "¡Bienvenido a la NFL Ultimate Challenge!",
     title: "¡Bienvenido a bordo, {username}!",
     body: "Estamos encantados de tenerte en nuestra liga. ¡Prepárate para hacer tus pronósticos para los próximos partidos de la NFL y subir en la tabla de posiciones!",
     button: "Ir al Panel"

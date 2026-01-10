@@ -10,6 +10,7 @@ import { Checkbox } from 'primereact/checkbox';
 import { SelectButton } from 'primereact/selectbutton';
 import { Skeleton } from 'primereact/skeleton';
 import { useTranslation } from 'react-i18next';
+import { getLogoUrl } from '../utils/logoUtils';
 
 interface Team {
   id: number;
@@ -125,21 +126,20 @@ const Dashboard = () => {
       <div className="w-full max-w-[900px] flex flex-col gap-6 mb-12 surface-card p-10 rounded-3xl shadow-xl border-0 border-primary-500 bg-opacity-50 transition-all">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-center md:text-left">
-                <h1 className="text-4xl font-black mb-2 text-primary italic tracking-tighter">{t('dashboard.title')}</h1>
-                <p className="text-gray-400 font-bold text-sm tracking-[0.2em]">{t('dashboard.description')}</p>
+                {/*<h1 className="text-4xl font-black mb-2 text-primary italic tracking-tighter">{t('dashboard.title')}</h1>*/}
+                {/*<p className="text-gray-400 font-bold text-sm tracking-[0.2em]">{t('dashboard.description')}</p>*/}
             </div>
             <SelectButton value={selectedStage} options={stageOptions} onChange={(e) => setSelectedStage(e.value)} className="shadow-2" />
         </div>
 
         {selectedStage === 'REGULAR' && (
             <div className="flex items-center gap-4 justify-center md:justify-start border-t border-gray-700 pt-8">
-                <span className="font-black text-xs tracking-widest text-gray-500">{t('dashboard.selectWeek')}</span>
-                <Dropdown 
+                <Dropdown
                     value={selectedWeek} 
                     options={weekOptions} 
                     onChange={(e) => setSelectedWeek(e.value)} 
                     placeholder={t('dashboard.selectWeek')} 
-                    className="w-full md:w-16rem p-inputtext-sm font-bold shadow-4 border-none bg-gray-900"
+                    className=" md:w-16rem p-inputtext-sm font-bold shadow-4 border-none bg-gray-900"
                 />
             </div>
         )}
@@ -155,14 +155,14 @@ const Dashboard = () => {
               <div className="w-fit mx-auto pb-12 px-2 md:px-10">
                   <DataTable 
                     value={filteredMatchups} 
-                    stripedRows 
-                    rowHover 
+                    stripedRows
+                    rowHover
                     responsiveLayout="scroll" 
                     className="shadow-8 rounded-3xl overflow-hidden border-0 border-gray-800"
                   >
                     <Column header="" body={(row) => (
                         <div className="py-6 px-4">
-                            <img src={row.awayTeam.logoUrl} className="w-14 h-14 object-contain transition-transform hover:scale-110" alt="" />
+                            <img src={getLogoUrl(row.awayTeam.logoUrl, '30')} className="w-8 h-8 object-contain transition-transform hover:scale-110" alt="" />
                         </div>
                     )} style={{width: '7rem'}} align="right" headerClassName="justify-content-center"></Column>
                     
@@ -208,7 +208,7 @@ const Dashboard = () => {
                     
                     <Column header="" body={(row) => (
                         <div className="py-6 px-4">
-                            <img src={row.homeTeam.logoUrl} className="w-14 h-14 object-contain transition-transform hover:scale-110" alt="" />
+                            <img src={getLogoUrl(row.homeTeam.logoUrl, '30')} className="w-8 h-8 object-contain transition-transform hover:scale-110" alt="" />
                         </div>
                     )} style={{width: '7rem'}} align="left" headerClassName="justify-content-center"></Column>
 

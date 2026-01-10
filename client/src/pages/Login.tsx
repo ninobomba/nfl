@@ -60,9 +60,9 @@ const Login = ({ isAdminLogin = false }: LoginProps) => {
   const title = (
       <div className="flex flex-col items-center gap-8 mb-6">
           <img 
-            src="/images/nfl-logo.png" 
+            src="/images/nfl-logo-60x80.png" 
             alt="NFL Logo" 
-            className="w-20 h-20"
+            className="w-16 h-20"
           />
           <span className="text-3xl font-black italic tracking-tighter text-white">
               {isAdminLogin ? t('landing.adminPortal') : t('landing.signin')}

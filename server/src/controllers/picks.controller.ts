@@ -1,6 +1,7 @@
 import type { Response } from 'express';
 import type { AuthRequest } from '../middleware/auth.middleware.js';
 import prisma from '../prisma.js';
+import { SeasonStage } from '@prisma/client';
 
 export const getMyPicks = async (req: AuthRequest, res: Response) => {
   try {
@@ -78,7 +79,7 @@ export const getLeaderboard = async (req: AuthRequest, res: Response) => {
 export const getWeeklyLeaderboard = async (req: AuthRequest, res: Response) => {
     try {
         const week = Number(req.query.week);
-        const stage = (req.query.stage as string) || 'REGULAR';
+        const stage = (req.query.stage as string) as SeasonStage || SeasonStage.REGULAR;
 
         if (!week) {
             res.status(400).json({ message: "Semana requerida" });
@@ -100,6 +101,8 @@ export const getWeeklyLeaderboard = async (req: AuthRequest, res: Response) => {
         const userStats: Record<number, any> = {};
 
         picks.forEach(pick => {
+            if (!pick.user) return;
+            
             if (!userStats[pick.userId]) {
                 userStats[pick.userId] = {
                     id: pick.userId,

@@ -8,8 +8,13 @@
     "logout": "Cerrar sesión",
     "hi": "Bienvenido, {{name}}"
   },
+  "standings_tabs": {
+    "division": "División",
+    "conference": "Conferencia",
+    "league": "Liga"
+  },
   "landing": {
-    "title": "Pick'em",
+    "title": "Ultimate Challenge",
     "subtitle": "Reto de lotería",
     "description": "El desafío definitivo de predicciones de la National Football League. Pronostica los ganadores de cada juego desde la temporada regular hasta el Super Bowl.",
     "username": "Nombre de usuario",

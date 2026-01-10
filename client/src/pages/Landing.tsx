@@ -69,11 +69,11 @@ const Landing = () => {
           <Card className="w-full max-w-[550px] shadow-8 border-0 border-gray-800 px-4 md:px-10 py-8 rounded-3xl bg-surface-card overflow-hidden">
             <div className="flex flex-col items-center gap-10">
                 <div className="flex flex-col items-center gap-6">
-                    <img 
-                        src="/images/nfl-logo.png" 
-                        alt="NFL Logo" 
-                        className="w-28 h-28"
-                    />
+                        <img 
+                            src="/images/nfl-logo-60x80.png" 
+                            alt="NFL Logo" 
+                            className="w-16 h-20 md:w-20 md:h-24 object-contain animate-bounce-slow shadow-2xl"
+                        />
                     <div className="flex flex-col gap-2">
                         <h1 className="text-4xl md:text-7xl font-black tracking-tighter italic m-0 leading-tight">
                             {t('landing.title')} <br />
@@ -131,11 +131,9 @@ const Landing = () => {
           </Card>
       </div>
       
-      <footer className="py-10 text-center opacity-30">
-          <span className="text-gray-600 text-xs font-black tracking-[0.5em]">
-              NFL Pick'em Lottery © 2026
-          </span>
-      </footer>
+          <footer className="mt-12 text-[10px] font-black tracking-[0.3em] text-gray-600 uppercase">
+              NFL Ultimate Challenge © 2026
+          </footer>
     </div>
   );
 };

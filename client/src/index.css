@@ -12,49 +12,178 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: var(--surface-ground);
-  color: var(--text-color);
+  background-color: #0f111a;
+  color: #e2e8f0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.3s ease;
 }
 
-/* PrimeReact Customizations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadein {
+  animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f111a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* PrimeReact Customizations Modernized */
 .p-component {
   font-family: 'Comfortaa', cursive !important;
 }
 
+.p-menubar {
+    padding: 0.5rem 1rem !important;
+    background: transparent !important;
+}
+
+.p-menubar .p-menuitem-link {
+    padding: 0.75rem 1.25rem !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease !important;
+}
+
+.p-menubar .p-menuitem-link:hover {
+    background: rgba(59, 130, 246, 0.1) !important;
+}
+
+.p-menubar .p-menuitem-link .p-menuitem-text {
+    color: #94a3b8 !important;
+    font-weight: 900 !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.1em !important;
+}
+
+.p-menubar .p-menuitem-link:hover .p-menuitem-text {
+    color: #3b82f6 !important;
+}
+
 .p-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+  background: #161b2b !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 24px !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5) !important;
 }
 
 .p-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important;
+  transform: translateY(-4px) !important;
+  border-color: rgba(59, 130, 246, 0.2) !important;
+  box-shadow: 0 20px 40px -15px rgba(0,0,0,0.6), 0 0 20px rgba(59, 130, 246, 0.05) !important;
 }
 
-/* Estilo de tablas optimizado */
+/* TabView Modernization */
+.p-tabview-nav {
+    background: transparent !important;
+    border: none !important;
+    display: flex !important;
+    justify-content: center !important;
+    gap: 1rem !important;
+    padding: 1rem !important;
+}
+
+.p-tabview-nav li .p-tabview-nav-link {
+    background: #0f111a !important;
+    border: 1px solid #1e293b !important;
+    border-radius: 12px !important;
+    color: #64748b !important;
+    font-weight: 900 !important;
+    font-size: 0.7rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.2em !important;
+    padding: 1rem 2rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.p-tabview-nav li.p-highlight .p-tabview-nav-link {
+    background: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Optimized Table Style */
+.p-datatable {
+    background: transparent !important;
+}
+
+.p-datatable .p-datatable-tbody > tr {
+    background: transparent !important;
+    transition: background-color 0.2s !important;
+}
+
 .p-datatable .p-datatable-tbody > tr > td {
-  padding: 1.25rem 1rem !important;
-  border-bottom: 1px solid var(--surface-border) !important;
+  padding: 1.5rem 1rem !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
 }
 
 .p-datatable .p-datatable-thead > tr > th {
-  background: var(--surface-section) !important;
-  padding: 1.25rem 1rem !important;
-  font-weight: 700 !important;
-  border-bottom: 2px solid var(--primary-color) !important;
+  background: rgba(15, 17, 26, 0.5) !important;
+  padding: 1.5rem 1rem !important;
+  font-weight: 900 !important;
+  font-size: 0.7rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.2em !important;
+  color: #64748b !important;
+  border-bottom: 1px solid #1e293b !important;
 }
 
-/* Botones más modernos */
+/* Modern Buttons */
 .p-button {
   border-radius: 12px !important;
-  font-weight: 700 !important;
+  font-weight: 900 !important;
   letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
 }
 
-/* Inputs con estilo consistente */
+/* Inputs with consistent style */
 .p-inputtext, .p-password input, .p-dropdown {
-  border-radius: 10px !important;
-  transition: border-color 0.2s, box-shadow 0.2s !important;
+  background: #0f111a !important;
+  border: 1px solid #1e293b !important;
+  border-radius: 12px !important;
+  color: white !important;
+  transition: all 0.3s ease !important;
+}
+
+.p-inputtext:focus, .p-dropdown:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
+}
+
+.text-uppercase {
+    text-transform: uppercase !important;
+}
+
+/* Apply uppercase to common labels and headings for consistency */
+label, 
+h1, 
+h2, 
+h3, 
+.p-tabview-nav-link, 
+.p-menuitem-text, 
+.p-button-label,
+.p-column-header-content {
+    text-transform: uppercase !important;
+    letter-spacing: 0.1em !important;
 }

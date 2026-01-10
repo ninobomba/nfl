@@ -8,9 +8,12 @@
     "logout": "Sign Out",
     "hi": "Welcome, {{name}}"
   },
+  "standings_tabs": {
+    "division": "Division",
+    "conference": "Conference",
+    "league": "League"
+  },
   "landing": {
-    "title": "Pick'em",
-    "subtitle": "Lottery Challenge",
     "description": "The ultimate National Football League prediction challenge. Predict the winners of every game from the Regular Season to the Super Bowl.",
     "username": "Username",
     "password": "Password",
@@ -19,6 +22,8 @@
     "register": "Create New Account",
     "adminPortal": "Administrator Portal",
     "forgotPassword": "Forgot your password?",
+    "title": "Ultimate Challenge",
+    "subtitle": "Lottery Challenge",
     "reset": {
       "title": "Reset Password",
       "email": "Enter your registered email to receive a recovery key.",
