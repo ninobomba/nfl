@@ -25,25 +25,46 @@ export async function initializeDatabase() {
             try {
                 await prisma.$executeRawUnsafe(statement);
             } catch (stmtError: any) {
-                // If it's a "relation already exists" error, we might want to ignore it
-                // but since we are using IF NOT EXISTS and DO blocks, we should log other errors
-                if (!stmtError.message.includes('already exists')) {
-                    logger.warn(`Statement failed: ${statement.substring(0, 50)}...`);
-                    logger.warn(stmtError.message);
+                const msg = stmtError.message;
+                if (msg.includes('already exists') || msg.includes('duplicate key')) {
+                    continue;
                 }
+                logger.warn(`Statement failed: ${statement.substring(0, 100)}...`);
+                logger.warn(msg);
+            }
+        }
+
+        // Ensure we have some matchups for tests if the table is empty
+        const matchupCount = await prisma.matchup.count();
+        if (matchupCount === 0) {
+            logger.info('Creating initial matchups for Week 1...');
+            const teams = await prisma.team.findMany();
+            if (teams.length >= 2) {
+                const matchups = [];
+                for (let i = 0; i < teams.length; i += 2) {
+                    const home = teams[i];
+                    const away = teams[i+1];
+                    if (home && away) {
+                        matchups.push({
+                            week: 1,
+                            stage: 'REGULAR' as any,
+                            homeTeamId: home.id,
+                            awayTeamId: away.id,
+                            startTime: new Date(Date.now() + 86400000) // Tomorrow
+                        });
+                    }
+                }
+                await prisma.matchup.createMany({ data: matchups });
             }
         }
         
-        logger.info('Database initialized successfully from SQL file.');
+        logger.info('Database initialized successfully.');
     } catch (error) {
         logger.error('Error during database initialization:');
         logger.error(error);
     }
 }
 
-/**
- * Splits a SQL string into individual statements, respecting dollar-quoted strings (e.g., DO blocks).
- */
 function splitSqlStatements(sql: string): string[] {
     const statements: string[] = [];
     const lines = sql.split(/\r?\n/);
@@ -51,15 +72,12 @@ function splitSqlStatements(sql: string): string[] {
     let inDollarQuote = false;
 
     for (let line of lines) {
-        // Skip comments and empty lines at the start of a statement
         if (currentStatement === '' && (line.trim().startsWith('--') || line.trim() === '')) {
             continue;
         }
 
         currentStatement += line + '\n';
 
-        // Check for dollar quotes ($$)
-        // This handles simple $$ quotes used in DO blocks
         const dollarQuoteMatches = line.match(/\$\$/g);
         if (dollarQuoteMatches) {
             if (dollarQuoteMatches.length % 2 !== 0) {
@@ -67,7 +85,6 @@ function splitSqlStatements(sql: string): string[] {
             }
         }
 
-        // If we are not inside a dollar quote and the line ends with a semicolon
         if (!inDollarQuote && line.trim().endsWith(';')) {
             statements.push(currentStatement.trim());
             currentStatement = '';

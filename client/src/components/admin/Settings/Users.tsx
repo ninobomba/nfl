@@ -19,7 +19,7 @@ interface UsersProps {
 const Users: React.FC<UsersProps> = ({ users, token, fetchData, toast }) => {
     const { t } = useTranslation();
 
-    const handleDeleteUser = (id: number, type: 'soft' | 'hard') => {
+    const handleDeleteUser = (id: string, type: 'soft' | 'hard') => {
         confirmDialog({
             message: type === 'soft' ? t('admin.confirmSoftDelete') : t('admin.confirmHardDelete'),
             header: t('admin.confirm.title'),

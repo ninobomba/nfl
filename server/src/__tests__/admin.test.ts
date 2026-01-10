@@ -106,7 +106,7 @@ describe('Admin Management API', () => {
     expect(res.body.isActive).toBe(false);
 
     // Re-activar para no romper otras pruebas
-    await prisma.user.update({ where: { id: user?.id }, data: { isActive: true } });
+    await prisma.user.update({ where: { id: user?.id as string }, data: { isActive: true } });
   });
 
   it('should get audit logs', async () => {

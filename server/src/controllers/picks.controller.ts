@@ -41,6 +41,11 @@ export const makePick = async (req: AuthRequest, res: Response) => {
       return;
     }
 
+    if (selectedTeamId !== matchup.homeTeamId && selectedTeamId !== matchup.awayTeamId) {
+        res.status(400).json({ message: 'Invalid team for this matchup' });
+        return;
+    }
+
     const pick = await prisma.pick.upsert({
       where: {
         userId_matchupId: {

@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id             String          @id @default(uuid())
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   username       String          @unique
   email          String          @unique
   password       String
@@ -29,7 +29,7 @@ enum UserRole {
 }
 
 model Team {
-  id           String    @id @default(uuid())
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name         String
   city         String
   abbreviation String    @unique
@@ -43,34 +43,34 @@ model Team {
 }
 
 model Matchup {
-  id         String      @id @default(uuid())
+  id         String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   week       Int
   stage      SeasonStage @default(REGULAR)
   startTime  DateTime
   isFinished Boolean     @default(false)
   
-  homeTeamId String
+  homeTeamId String      @db.Uuid
   homeTeam   Team        @relation("HomeTeam", fields: [homeTeamId], references: [id])
   
-  awayTeamId String
+  awayTeamId String      @db.Uuid
   awayTeam   Team        @relation("AwayTeam", fields: [awayTeamId], references: [id])
   
   homeScore  Int?
   awayScore  Int?
-  winnerId   String?
+  winnerId   String?     @db.Uuid
   
   picks      Pick[]
 }
 
 model Pick {
-  id             String  @id @default(uuid())
-  userId         String
+  id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String  @db.Uuid
   user           User    @relation(fields: [userId], references: [id])
   
-  matchupId      String
+  matchupId      String  @db.Uuid
   matchup        Matchup @relation(fields: [matchupId], references: [id])
   
-  selectedTeamId String
+  selectedTeamId String  @db.Uuid
   selectedTeam   Team    @relation(fields: [selectedTeamId], references: [id])
   
   isCorrect      Boolean?
@@ -82,8 +82,8 @@ model Pick {
 }
 
 model PasswordReset {
-  id        String   @id @default(uuid())
-  userId    String
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @db.Uuid
   user      User     @relation(fields: [userId], references: [id])
   key       String   // Clave de 6 dígitos
   expiresAt DateTime
@@ -92,8 +92,8 @@ model PasswordReset {
 }
 
 model AuditLog {
-  id        String   @id @default(uuid())
-  userId    String?
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String?  @db.Uuid
   user      User?    @relation(fields: [userId], references: [id])
   action    String   // e.g., "FORGOT_PASSWORD_REQUEST", "PASSWORD_RESET_SUCCESS"
   details   String?
@@ -102,7 +102,7 @@ model AuditLog {
 }
 
 model AppSetting {
-  id    String @id @default(uuid())
+  id    String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   key   String @unique
   value String
 }

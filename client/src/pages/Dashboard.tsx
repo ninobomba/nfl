@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { getLogoUrl } from '../utils/logoUtils';
 
 interface Team {
-  id: number;
+  id: string;
   name: string;
   abbreviation: string;
   city: string;
@@ -21,23 +21,23 @@ interface Team {
 }
 
 interface Matchup {
-  id: number;
+  id: string;
   week: number;
   stage: string;
   startTime: string;
   homeTeam: Team;
   awayTeam: Team;
-  homeTeamId: number;
-  awayTeamId: number;
-  winnerId: number | null;
+  homeTeamId: string;
+  awayTeamId: string;
+  winnerId: string | null;
   homeScore: number | null;
   awayScore: number | null;
   isFinished: boolean;
 }
 
 interface UserPick {
-    matchupId: number;
-    selectedTeamId: number;
+    matchupId: string;
+    selectedTeamId: string;
 }
 
 const Dashboard = () => {
@@ -67,7 +67,7 @@ const Dashboard = () => {
           api.get('/api/picks', { headers: { Authorization: `Bearer ${token}` } })
       ]);
       setMatchups(matchupsRes.data);
-      setUserPicks(picksRes.data.map((p: { matchupId: number; selectedTeamId: number }) => ({ matchupId: p.matchupId, selectedTeamId: p.selectedTeamId })));
+      setUserPicks(picksRes.data.map((p: { matchupId: string; selectedTeamId: string }) => ({ matchupId: p.matchupId, selectedTeamId: p.selectedTeamId })));
     } catch (error) {
       console.error(error); // Log error instead of unused var
       toast.current?.show({severity:'error', summary: 'Error', detail: 'Could not fetch data'});
@@ -80,7 +80,7 @@ const Dashboard = () => {
     fetchData();
   }, [fetchData]);
 
-  const handlePick = async (matchupId: number, selectedTeamId: number, teamName: string) => {
+  const handlePick = async (matchupId: string, selectedTeamId: string, teamName: string) => {
     try {
       await api.post(
         '/api/picks',
@@ -98,7 +98,7 @@ const Dashboard = () => {
     }
   };
 
-  const isSelected = (matchupId: number, teamId: number) => {
+  const isSelected = (matchupId: string, teamId: string) => {
       return userPicks.some(p => p.matchupId === matchupId && p.selectedTeamId === teamId);
   }
 

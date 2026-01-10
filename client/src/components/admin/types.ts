@@ -1,6 +1,6 @@
 // Admin types
 export interface Team {
-  id: number;
+  id: string;
   name: string;
   city: string;
   logoUrl: string;
@@ -9,37 +9,37 @@ export interface Team {
 }
 
 export interface Matchup {
-  id: number;
+  id: string;
   week: number;
   stage: string;
-  homeTeamId: number;
-  awayTeamId: number;
+  homeTeamId: string;
+  awayTeamId: string;
   homeTeam: Team;
   awayTeam: Team;
   isFinished: boolean;
-  winnerId: number | null;
+  winnerId: string | null;
   homeScore: number | null;
   awayScore: number | null;
   startTime: string;
 }
 
 export interface MatchupForm {
-    id?: number;
+    id?: string;
     week: number;
     stage: string;
-    homeTeamId: number;
-    awayTeamId: number;
+    homeTeamId: string;
+    awayTeamId: string;
     startTime: Date;
     homeTeam?: Team;
     awayTeam?: Team;
     isFinished?: boolean;
-    winnerId?: number | null;
+    winnerId?: string | null;
     homeScore?: number | null;
     awayScore?: number | null;
 }
 
 export interface AuditLog {
-    id: number;
+    id: string;
     action: string;
     details: string;
     createdAt: string;
@@ -47,7 +47,7 @@ export interface AuditLog {
 }
 
 export interface User {
-  id: number;
+  id: string;
   username: string;
   email: string;
   score: number;

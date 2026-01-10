@@ -1,3 +1,6 @@
+-- Enable pgcrypto for gen_random_uuid()
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 -- Enums
 DO $$ BEGIN
     CREATE TYPE "UserRole" AS ENUM ('USER', 'ADMIN');
@@ -22,10 +25,13 @@ CREATE TABLE IF NOT EXISTS "User" (
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "deletedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
+ALTER TABLE "User" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();
+ALTER TABLE "User" ALTER COLUMN "updatedAt" SET DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE "User" ALTER COLUMN "createdAt" SET DEFAULT CURRENT_TIMESTAMP;
 
 -- CreateTable
 CREATE TABLE IF NOT EXISTS "Team" (
@@ -39,6 +45,7 @@ CREATE TABLE IF NOT EXISTS "Team" (
 
     CONSTRAINT "Team_pkey" PRIMARY KEY ("id")
 );
+ALTER TABLE "Team" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();
 
 -- CreateTable
 CREATE TABLE IF NOT EXISTS "Matchup" (
@@ -55,6 +62,7 @@ CREATE TABLE IF NOT EXISTS "Matchup" (
 
     CONSTRAINT "Matchup_pkey" PRIMARY KEY ("id")
 );
+ALTER TABLE "Matchup" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();
 
 -- CreateTable
 CREATE TABLE IF NOT EXISTS "Pick" (
@@ -64,10 +72,13 @@ CREATE TABLE IF NOT EXISTS "Pick" (
     "selectedTeamId" UUID NOT NULL,
     "isCorrect" BOOLEAN,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Pick_pkey" PRIMARY KEY ("id")
 );
+ALTER TABLE "Pick" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();
+ALTER TABLE "Pick" ALTER COLUMN "updatedAt" SET DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE "Pick" ALTER COLUMN "createdAt" SET DEFAULT CURRENT_TIMESTAMP;
 
 -- CreateTable
 CREATE TABLE IF NOT EXISTS "PasswordReset" (
@@ -80,6 +91,8 @@ CREATE TABLE IF NOT EXISTS "PasswordReset" (
 
     CONSTRAINT "PasswordReset_pkey" PRIMARY KEY ("id")
 );
+ALTER TABLE "PasswordReset" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();
+ALTER TABLE "PasswordReset" ALTER COLUMN "createdAt" SET DEFAULT CURRENT_TIMESTAMP;
 
 -- CreateTable
 CREATE TABLE IF NOT EXISTS "AuditLog" (
@@ -92,6 +105,8 @@ CREATE TABLE IF NOT EXISTS "AuditLog" (
 
     CONSTRAINT "AuditLog_pkey" PRIMARY KEY ("id")
 );
+ALTER TABLE "AuditLog" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();
+ALTER TABLE "AuditLog" ALTER COLUMN "createdAt" SET DEFAULT CURRENT_TIMESTAMP;
 
 -- CreateTable
 CREATE TABLE IF NOT EXISTS "AppSetting" (
@@ -101,16 +116,13 @@ CREATE TABLE IF NOT EXISTS "AppSetting" (
 
     CONSTRAINT "AppSetting_pkey" PRIMARY KEY ("id")
 );
+ALTER TABLE "AppSetting" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();
 
 -- CreateIndex
 CREATE UNIQUE INDEX IF NOT EXISTS "User_username_key" ON "User"("username");
-
 CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email");
-
 CREATE UNIQUE INDEX IF NOT EXISTS "Team_abbreviation_key" ON "Team"("abbreviation");
-
 CREATE UNIQUE INDEX IF NOT EXISTS "Pick_userId_matchupId_key" ON "Pick"("userId", "matchupId");
-
 CREATE UNIQUE INDEX IF NOT EXISTS "AppSetting_key_key" ON "AppSetting"("key");
 
 -- AddForeignKey

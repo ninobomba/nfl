@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { getLogoUrl } from '../utils/logoUtils';
 
 interface TeamStats {
-  id: number;
+  id: string;
   name: string;
   city: string;
   abbreviation: string;

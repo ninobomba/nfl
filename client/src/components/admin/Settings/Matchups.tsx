@@ -25,8 +25,8 @@ interface MatchupsProps {
 const emptyMatchup: MatchupForm = {
     week: 1,
     stage: 'REGULAR',
-    homeTeamId: 0,
-    awayTeamId: 0,
+    homeTeamId: '',
+    awayTeamId: '',
     startTime: new Date()
 };
 
@@ -72,7 +72,7 @@ const Matchups: React.FC<MatchupsProps> = ({ matchups, teams, token, fetchData, 
         }
     }
 
-    const deleteMatchup = (id: number) => {
+    const deleteMatchup = (id: string) => {
         confirmDialog({
             message: t('admin.confirmDelete'),
             header: t('admin.confirm.title'),

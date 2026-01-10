@@ -10,13 +10,13 @@ import { useTranslation } from 'react-i18next';
 import { Tag } from 'primereact/tag';
 
 interface UserScore {
-  id: number;
+  id: string;
   username: string;
   score: number;
 }
 
 interface WeeklyRanking {
-    id: number;
+    id: string;
     username: string;
     correctPicks: number;
     lastPickDate: string;

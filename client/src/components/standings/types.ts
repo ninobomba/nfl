@@ -1,5 +1,5 @@
 export interface TeamStats {
-  id: number;
+  id: string;
   name: string;
   city: string;
   abbreviation: string;

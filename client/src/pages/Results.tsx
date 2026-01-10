@@ -9,22 +9,22 @@ import { Tag } from 'primereact/tag';
 import { useTranslation } from 'react-i18next';
 
 interface Team {
-  id: number;
+  id: string;
   name: string;
   logoUrl: string;
 }
 
 interface Matchup {
-  id: number;
+  id: string;
   week: number;
   homeTeam: Team;
   awayTeam: Team;
   homeScore: number;
   awayScore: number;
-  winnerId: number;
+  winnerId: string;
   isFinished: boolean;
-  awayTeamId: number;
-  homeTeamId: number;
+  awayTeamId: string;
+  homeTeamId: string;
 }
 
 const Results = () => {
