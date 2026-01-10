@@ -5,12 +5,43 @@ import prisma from '../prisma.js';
 
 describe('Data & Standings API', () => {
   let userToken: string;
+  let testMatchup: any;
+  let testTeam: any;
 
   beforeAll(async () => {
     const loginRes = await request(app)
       .post('/api/auth/login')
-      .send({ username: 'admin', password: 'admin' });
+      .send({ username: 'test', password: 'test' });
     userToken = loginRes.body.token;
+
+    testMatchup = await prisma.matchup.findFirst({
+        where: { week: 1 }
+    });
+    testTeam = await prisma.team.findFirst({
+        where: { id: testMatchup.homeTeamId }
+    });
+  });
+
+  it('should get my picks', async () => {
+    const res = await request(app)
+      .get('/api/picks')
+      .set('Authorization', `Bearer ${userToken}`);
+    
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  it('should make a pick', async () => {
+    const res = await request(app)
+      .post('/api/picks')
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({
+        matchupId: testMatchup.id,
+        selectedTeamId: testTeam.id
+      });
+    
+    expect(res.status).toBe(200);
+    expect(res.body.selectedTeamId).toBe(testTeam.id);
   });
 
   it('should get calculated standings', async () => {

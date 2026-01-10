@@ -4,10 +4,11 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id             Int             @id @default(autoincrement())
+  id             String          @id @default(uuid())
   username       String          @unique
   email          String          @unique
   password       String
@@ -28,7 +29,7 @@ enum UserRole {
 }
 
 model Team {
-  id           Int       @id @default(autoincrement())
+  id           String    @id @default(uuid())
   name         String
   city         String
   abbreviation String    @unique
@@ -42,34 +43,34 @@ model Team {
 }
 
 model Matchup {
-  id         Int         @id @default(autoincrement())
+  id         String      @id @default(uuid())
   week       Int
   stage      SeasonStage @default(REGULAR)
   startTime  DateTime
   isFinished Boolean     @default(false)
   
-  homeTeamId Int
+  homeTeamId String
   homeTeam   Team        @relation("HomeTeam", fields: [homeTeamId], references: [id])
   
-  awayTeamId Int
+  awayTeamId String
   awayTeam   Team        @relation("AwayTeam", fields: [awayTeamId], references: [id])
   
   homeScore  Int?
   awayScore  Int?
-  winnerId   Int?
+  winnerId   String?
   
   picks      Pick[]
 }
 
 model Pick {
-  id             Int     @id @default(autoincrement())
-  userId         Int
+  id             String  @id @default(uuid())
+  userId         String
   user           User    @relation(fields: [userId], references: [id])
   
-  matchupId      Int
+  matchupId      String
   matchup        Matchup @relation(fields: [matchupId], references: [id])
   
-  selectedTeamId Int
+  selectedTeamId String
   selectedTeam   Team    @relation(fields: [selectedTeamId], references: [id])
   
   isCorrect      Boolean?
@@ -81,8 +82,8 @@ model Pick {
 }
 
 model PasswordReset {
-  id        Int      @id @default(autoincrement())
-  userId    Int
+  id        String   @id @default(uuid())
+  userId    String
   user      User     @relation(fields: [userId], references: [id])
   key       String   // Clave de 6 dígitos
   expiresAt DateTime
@@ -91,8 +92,8 @@ model PasswordReset {
 }
 
 model AuditLog {
-  id        Int      @id @default(autoincrement())
-  userId    Int?
+  id        String   @id @default(uuid())
+  userId    String?
   user      User?    @relation(fields: [userId], references: [id])
   action    String   // e.g., "FORGOT_PASSWORD_REQUEST", "PASSWORD_RESET_SUCCESS"
   details   String?
@@ -101,7 +102,7 @@ model AuditLog {
 }
 
 model AppSetting {
-  id    Int    @id @default(autoincrement())
+  id    String @id @default(uuid())
   key   String @unique
   value String
 }

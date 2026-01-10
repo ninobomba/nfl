@@ -25,6 +25,25 @@ describe('Auth & Recovery API', () => {
     expect(res.body.user.email).toBe(testUser.email);
   });
 
+  it('should login with valid credentials', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ username: testUser.username, password: testUser.password });
+    
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('token');
+    expect(res.body.user.username).toBe(testUser.username);
+  });
+
+  it('should fail login with invalid password', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ username: testUser.username, password: 'wrongpassword' });
+    
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('INVALID_CREDENTIALS');
+  });
+
   it('should request a password reset key', async () => {
     const res = await request(app)
       .post('/api/auth/forgot-password')

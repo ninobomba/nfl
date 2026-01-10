@@ -98,7 +98,7 @@ export const getWeeklyLeaderboard = async (req: AuthRequest, res: Response) => {
         });
 
         // Agrupar por usuario
-        const userStats: Record<number, any> = {};
+        const userStats: Record<string, any> = {};
 
         picks.forEach(pick => {
             if (!pick.user) return;

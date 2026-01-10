@@ -4,7 +4,7 @@ import prisma from '../prisma.js';
 
 export interface AuthRequest extends Request {
   user?: { 
-      userId: number;
+      userId: string;
       role: string;
   };
 }

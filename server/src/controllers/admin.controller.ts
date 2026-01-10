@@ -89,12 +89,10 @@ export const createMatchup = async (req: Request, res: Response) => {
     try {
         const { week, stage, homeTeamId, awayTeamId, startTime } = req.body;
 
-        if (Number(homeTeamId) === Number(awayTeamId)) {
+        if (homeTeamId === awayTeamId) {
             res.status(400).json({ message: "SAME_TEAM_CONFLICT" });
             return;
         }
-
-        // 1. Validar límite de 18 juegos por semana
 
         const count = await prisma.matchup.count({
             where: { week: Number(week), stage }
@@ -110,10 +108,10 @@ export const createMatchup = async (req: Request, res: Response) => {
                 week: Number(week),
                 stage,
                 OR: [
-                    { homeTeamId: Number(homeTeamId) },
-                    { awayTeamId: Number(homeTeamId) },
-                    { homeTeamId: Number(awayTeamId) },
-                    { awayTeamId: Number(awayTeamId) }
+                    { homeTeamId },
+                    { awayTeamId: homeTeamId },
+                    { homeTeamId: awayTeamId },
+                    { awayTeamId }
                 ]
             }
         });
@@ -127,8 +125,8 @@ export const createMatchup = async (req: Request, res: Response) => {
             data: {
                 week: Number(week),
                 stage,
-                homeTeamId: Number(homeTeamId),
-                awayTeamId: Number(awayTeamId),
+                homeTeamId,
+                awayTeamId,
                 startTime: new Date(startTime)
             }
         });
@@ -143,7 +141,7 @@ export const updateMatchup = async (req: Request, res: Response) => {
         const { id, week, stage, homeTeamId, awayTeamId, startTime } = req.body;
 
         const count = await prisma.matchup.count({
-            where: { week: Number(week), stage, NOT: { id: Number(id) } }
+            where: { week: Number(week), stage, NOT: { id } }
         });
 
         if (count >= 18) {
@@ -155,12 +153,12 @@ export const updateMatchup = async (req: Request, res: Response) => {
             where: {
                 week: Number(week),
                 stage,
-                NOT: { id: Number(id) },
+                NOT: { id },
                 OR: [
-                    { homeTeamId: Number(homeTeamId) },
-                    { awayTeamId: Number(homeTeamId) },
-                    { homeTeamId: Number(awayTeamId) },
-                    { awayTeamId: Number(awayTeamId) }
+                    { homeTeamId },
+                    { awayTeamId: homeTeamId },
+                    { homeTeamId: awayTeamId },
+                    { awayTeamId }
                 ]
             }
         });
@@ -171,12 +169,12 @@ export const updateMatchup = async (req: Request, res: Response) => {
         }
 
         const matchup = await prisma.matchup.update({
-            where: { id: Number(id) },
+            where: { id },
             data: {
                 week: Number(week),
                 stage,
-                homeTeamId: Number(homeTeamId),
-                awayTeamId: Number(awayTeamId),
+                homeTeamId,
+                awayTeamId,
                 startTime: new Date(startTime)
             }
         });
@@ -189,9 +187,8 @@ export const updateMatchup = async (req: Request, res: Response) => {
 export const deleteMatchup = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const matchupId = Number(id);
 
-        const matchup = await prisma.matchup.findUnique({ where: { id: matchupId } });
+        const matchup = await prisma.matchup.findUnique({ where: { id } });
         if (!matchup) {
             res.status(404).json({ message: "Matchup not found" });
             return;
@@ -201,7 +198,7 @@ export const deleteMatchup = async (req: Request, res: Response) => {
         if (matchup.isFinished) {
             const points = POINTS_MAP[matchup.stage] || 1;
             const correctPicks = await prisma.pick.findMany({
-                where: { matchupId, isCorrect: true }
+                where: { matchupId: id, isCorrect: true }
             });
 
             for (const pick of correctPicks) {
@@ -212,8 +209,8 @@ export const deleteMatchup = async (req: Request, res: Response) => {
             }
         }
 
-        await prisma.pick.deleteMany({ where: { matchupId } });
-        await prisma.matchup.delete({ where: { id: matchupId } });
+        await prisma.pick.deleteMany({ where: { matchupId: id } });
+        await prisma.matchup.delete({ where: { id } });
 
         await prisma.auditLog.create({
             data: { action: 'MATCHUP_DELETED', details: `Matchup ID: ${id}, Was Finished: ${matchup.isFinished}` }
@@ -280,7 +277,7 @@ export const deleteUser = async (req: Request, res: Response) => {
         const { id } = req.params;
         const { type } = req.query; // 'soft' or 'hard'
 
-        const userToDelete = await prisma.user.findUnique({ where: { id: Number(id) } });
+        const userToDelete = await prisma.user.findUnique({ where: { id } });
         if (!userToDelete) {
             res.status(404).json({ message: "User not found" });
             return;
@@ -288,17 +285,17 @@ export const deleteUser = async (req: Request, res: Response) => {
 
         if (type === 'hard') {
             await prisma.$transaction([
-                prisma.pick.deleteMany({ where: { userId: Number(id) } }),
-                prisma.passwordReset.deleteMany({ where: { userId: Number(id) } }),
-                prisma.auditLog.deleteMany({ where: { userId: Number(id) } }),
-                prisma.user.delete({ where: { id: Number(id) } })
+                prisma.pick.deleteMany({ where: { userId: id } }),
+                prisma.passwordReset.deleteMany({ where: { userId: id } }),
+                prisma.auditLog.deleteMany({ where: { userId: id } }),
+                prisma.user.delete({ where: { id } })
             ]);
             res.json({ message: "USER_HARD_DELETED" });
         } else {
             // Soft delete: set deletedAt, deactivate AND rename to free up unique fields
             const timestamp = Date.now();
             await prisma.user.update({
-                where: { id: Number(id) },
+                where: { id },
                 data: { 
                     deletedAt: new Date(),
                     isActive: false,
@@ -323,7 +320,7 @@ export const toggleUserStatus = async (req: Request, res: Response) => {
     try {
         const { id, isActive } = req.body;
         const user = await prisma.user.update({
-            where: { id: Number(id) },
+            where: { id },
             data: { isActive: Boolean(isActive) }
         });
 
@@ -341,7 +338,7 @@ export const updateTeam = async (req: Request, res: Response) => {
     try {
         const { id, name, city, conference, division } = req.body;
         const team = await prisma.team.update({
-            where: { id: Number(id) },
+            where: { id },
             data: { name, city, conference, division }
         });
         res.json(team);

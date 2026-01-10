@@ -13,7 +13,7 @@ describe('Admin Management API', () => {
   beforeAll(async () => {
     const loginRes = await request(app)
       .post('/api/auth/login')
-      .send({ username: 'admin', password: 'admin' });
+      .send({ username: 'admin', password: 'DeltaXV5#!?' });
     adminToken = loginRes.body.token;
 
     const teams = await prisma.team.findMany({ take: 2 });
@@ -75,5 +75,56 @@ describe('Admin Management API', () => {
     
     expect(res.status).toBe(200);
     expect(res.body.value).toBe('vela-blue');
+  });
+
+  it('should simulate a game', async () => {
+    const matchup = await prisma.matchup.findFirst({ where: { week: testWeek } });
+    const res = await request(app)
+      .post('/api/admin/simulate')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        matchupId: matchup?.id,
+        homeScore: 24,
+        awayScore: 17
+      });
+    
+    expect(res.status).toBe(200);
+    expect(res.body.message).toBe('Game simulated and scores updated');
+  });
+
+  it('should toggle user status', async () => {
+    const user = await prisma.user.findFirst({ where: { username: 'test' } });
+    const res = await request(app)
+      .post('/api/admin/users/toggle-status')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        id: user?.id,
+        isActive: false
+      });
+    
+    expect(res.status).toBe(200);
+    expect(res.body.isActive).toBe(false);
+
+    // Re-activar para no romper otras pruebas
+    await prisma.user.update({ where: { id: user?.id }, data: { isActive: true } });
+  });
+
+  it('should get audit logs', async () => {
+    const res = await request(app)
+      .get('/api/admin/logs')
+      .set('Authorization', `Bearer ${adminToken}`);
+    
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  it('should delete a matchup', async () => {
+    const matchup = await prisma.matchup.findFirst({ where: { week: testWeek } });
+    const res = await request(app)
+      .delete(`/api/admin/matchups/${matchup?.id}`)
+      .set('Authorization', `Bearer ${adminToken}`);
+    
+    expect(res.status).toBe(200);
+    expect(res.body.message).toBe('DELETED');
   });
 });

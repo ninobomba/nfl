@@ -1,18 +1,26 @@
--- CreateEnum
-CREATE TYPE "UserRole" AS ENUM ('USER', 'ADMIN');
+-- Enums
+DO $$ BEGIN
+    CREATE TYPE "UserRole" AS ENUM ('USER', 'ADMIN');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
--- CreateEnum
-CREATE TYPE "SeasonStage" AS ENUM ('REGULAR', 'WILDCARD', 'DIVISIONAL', 'CONFERENCE', 'SUPERBOWL');
+DO $$ BEGIN
+    CREATE TYPE "SeasonStage" AS ENUM ('REGULAR', 'WILDCARD', 'DIVISIONAL', 'CONFERENCE', 'SUPERBOWL');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 -- CreateTable
-CREATE TABLE "User" (
-    "id" SERIAL NOT NULL,
+CREATE TABLE IF NOT EXISTS "User" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "username" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "score" INTEGER NOT NULL DEFAULT 0,
     "role" "UserRole" NOT NULL DEFAULT 'USER',
     "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "deletedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -20,8 +28,8 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
-CREATE TABLE "Team" (
-    "id" SERIAL NOT NULL,
+CREATE TABLE IF NOT EXISTS "Team" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "name" TEXT NOT NULL,
     "city" TEXT NOT NULL,
     "abbreviation" TEXT NOT NULL,
@@ -33,27 +41,27 @@ CREATE TABLE "Team" (
 );
 
 -- CreateTable
-CREATE TABLE "Matchup" (
-    "id" SERIAL NOT NULL,
+CREATE TABLE IF NOT EXISTS "Matchup" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "week" INTEGER NOT NULL,
     "stage" "SeasonStage" NOT NULL DEFAULT 'REGULAR',
     "startTime" TIMESTAMP(3) NOT NULL,
     "isFinished" BOOLEAN NOT NULL DEFAULT false,
-    "homeTeamId" INTEGER NOT NULL,
-    "awayTeamId" INTEGER NOT NULL,
+    "homeTeamId" UUID NOT NULL,
+    "awayTeamId" UUID NOT NULL,
     "homeScore" INTEGER,
     "awayScore" INTEGER,
-    "winnerId" INTEGER,
+    "winnerId" UUID,
 
     CONSTRAINT "Matchup_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Pick" (
-    "id" SERIAL NOT NULL,
-    "userId" INTEGER NOT NULL,
-    "matchupId" INTEGER NOT NULL,
-    "selectedTeamId" INTEGER NOT NULL,
+CREATE TABLE IF NOT EXISTS "Pick" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "userId" UUID NOT NULL,
+    "matchupId" UUID NOT NULL,
+    "selectedTeamId" UUID NOT NULL,
     "isCorrect" BOOLEAN,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -62,9 +70,9 @@ CREATE TABLE "Pick" (
 );
 
 -- CreateTable
-CREATE TABLE "PasswordReset" (
-    "id" SERIAL NOT NULL,
-    "userId" INTEGER NOT NULL,
+CREATE TABLE IF NOT EXISTS "PasswordReset" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "userId" UUID NOT NULL,
     "key" TEXT NOT NULL,
     "expiresAt" TIMESTAMP(3) NOT NULL,
     "used" BOOLEAN NOT NULL DEFAULT false,
@@ -74,9 +82,9 @@ CREATE TABLE "PasswordReset" (
 );
 
 -- CreateTable
-CREATE TABLE "AuditLog" (
-    "id" SERIAL NOT NULL,
-    "userId" INTEGER,
+CREATE TABLE IF NOT EXISTS "AuditLog" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "userId" UUID,
     "action" TEXT NOT NULL,
     "details" TEXT,
     "ip" TEXT,
@@ -86,8 +94,8 @@ CREATE TABLE "AuditLog" (
 );
 
 -- CreateTable
-CREATE TABLE "AppSetting" (
-    "id" SERIAL NOT NULL,
+CREATE TABLE IF NOT EXISTS "AppSetting" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "key" TEXT NOT NULL,
     "value" TEXT NOT NULL,
 
@@ -95,40 +103,44 @@ CREATE TABLE "AppSetting" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
+CREATE UNIQUE INDEX IF NOT EXISTS "User_username_key" ON "User"("username");
 
--- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email");
 
--- CreateIndex
-CREATE UNIQUE INDEX "Team_abbreviation_key" ON "Team"("abbreviation");
+CREATE UNIQUE INDEX IF NOT EXISTS "Team_abbreviation_key" ON "Team"("abbreviation");
 
--- CreateIndex
-CREATE UNIQUE INDEX "Pick_userId_matchupId_key" ON "Pick"("userId", "matchupId");
+CREATE UNIQUE INDEX IF NOT EXISTS "Pick_userId_matchupId_key" ON "Pick"("userId", "matchupId");
 
--- CreateIndex
-CREATE UNIQUE INDEX "AppSetting_key_key" ON "AppSetting"("key");
+CREATE UNIQUE INDEX IF NOT EXISTS "AppSetting_key_key" ON "AppSetting"("key");
 
 -- AddForeignKey
-ALTER TABLE "Matchup" ADD CONSTRAINT "Matchup_homeTeamId_fkey" FOREIGN KEY ("homeTeamId") REFERENCES "Team"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "Matchup" ADD CONSTRAINT "Matchup_homeTeamId_fkey" FOREIGN KEY ("homeTeamId") REFERENCES "Team"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN null; END $$;
 
--- AddForeignKey
-ALTER TABLE "Matchup" ADD CONSTRAINT "Matchup_awayTeamId_fkey" FOREIGN KEY ("awayTeamId") REFERENCES "Team"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "Matchup" ADD CONSTRAINT "Matchup_awayTeamId_fkey" FOREIGN KEY ("awayTeamId") REFERENCES "Team"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN null; END $$;
 
--- AddForeignKey
-ALTER TABLE "Pick" ADD CONSTRAINT "Pick_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "Pick" ADD CONSTRAINT "Pick_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN null; END $$;
 
--- AddForeignKey
-ALTER TABLE "Pick" ADD CONSTRAINT "Pick_matchupId_fkey" FOREIGN KEY ("matchupId") REFERENCES "Matchup"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "Pick" ADD CONSTRAINT "Pick_matchupId_fkey" FOREIGN KEY ("matchupId") REFERENCES "Matchup"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN null; END $$;
 
--- AddForeignKey
-ALTER TABLE "Pick" ADD CONSTRAINT "Pick_selectedTeamId_fkey" FOREIGN KEY ("selectedTeamId") REFERENCES "Team"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "Pick" ADD CONSTRAINT "Pick_selectedTeamId_fkey" FOREIGN KEY ("selectedTeamId") REFERENCES "Team"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN null; END $$;
 
--- AddForeignKey
-ALTER TABLE "PasswordReset" ADD CONSTRAINT "PasswordReset_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "PasswordReset" ADD CONSTRAINT "PasswordReset_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN null; END $$;
 
--- AddForeignKey
-ALTER TABLE "AuditLog" ADD CONSTRAINT "AuditLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "AuditLog" ADD CONSTRAINT "AuditLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN null; END $$;
 
 -- NFL Teams
 INSERT INTO "Team" ("name", "city", "abbreviation", "logoUrl", "conference", "division") VALUES
@@ -163,9 +175,11 @@ INSERT INTO "Team" ("name", "city", "abbreviation", "logoUrl", "conference", "di
 ('Seattle Seahawks', 'Seattle', 'SEA', '/logos_30px30px/SEA.png', 'NFC', 'West'),
 ('Tampa Bay Buccaneers', 'Tampa Bay', 'TB', '/logos_30px30px/TB.png', 'NFC', 'South'),
 ('Tennessee Titans', 'Tennessee', 'TEN', '/logos_30px30px/TEN.png', 'AFC', 'South'),
-('Washington Commanders', 'Washington', 'WAS', '/logos_30px30px/WAS.png', 'NFC', 'East');
+('Washington Commanders', 'Washington', 'WAS', '/logos_30px30px/WAS.png', 'NFC', 'East')
+ON CONFLICT (abbreviation) DO NOTHING;
 
 -- Initial Users
 INSERT INTO "User" ("username", "email", "password", "role", "updatedAt") VALUES
 ('admin', 'admin@nfl.com', '$2b$10$XJh8r0MV6d1nNMwKDdY2suWkyhkyacabeP4/PtcnWjxX/m0VWPwSe', 'ADMIN', CURRENT_TIMESTAMP),
-('test', 'test@example.com', '$2b$10$Ktd9vr9NEIUOdXdPJSojGex8BlHeD6eMOY1Ftd0deYOz15Vsnie3q', 'USER', CURRENT_TIMESTAMP);
+('test', 'test@example.com', '$2b$10$Ktd9vr9NEIUOdXdPJSojGex8BlHeD6eMOY1Ftd0deYOz15Vsnie3q', 'USER', CURRENT_TIMESTAMP)
+ON CONFLICT (username) DO NOTHING;
