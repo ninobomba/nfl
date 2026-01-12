@@ -1,11 +1,11 @@
-import type { Response } from 'express';
+import type { Response, Request } from 'express';
 import type { AuthRequest } from '../middleware/auth.middleware.js';
 import prisma from '../prisma.js';
 import { SeasonStage } from '@prisma/client';
 
-export const getMyPicks = async (req: AuthRequest, res: Response) => {
+export const getMyPicks = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.userId;
+    const userId = (req as AuthRequest).user?.userId;
     if (!userId) {
         res.status(401).json({ message: 'Unauthorized' });
         return;
@@ -20,9 +20,9 @@ export const getMyPicks = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const makePick = async (req: AuthRequest, res: Response) => {
+export const makePick = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.userId;
+    const userId = (req as AuthRequest).user?.userId;
     const { matchupId, selectedTeamId } = req.body;
 
     if (!userId) {
@@ -68,7 +68,7 @@ export const makePick = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const getLeaderboard = async (req: AuthRequest, res: Response) => {
+export const getLeaderboard = async (req: Request, res: Response) => {
     try {
         const users = await prisma.user.findMany({
             where: { isActive: true, deletedAt: null },
@@ -81,7 +81,7 @@ export const getLeaderboard = async (req: AuthRequest, res: Response) => {
     }
 }
 
-export const getWeeklyLeaderboard = async (req: AuthRequest, res: Response) => {
+export const getWeeklyLeaderboard = async (req: Request, res: Response) => {
     try {
         const week = Number(req.query.week);
         const stage = (req.query.stage as string) as SeasonStage || SeasonStage.REGULAR;

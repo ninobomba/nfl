@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAppDispatch } from '../store/hooks';
 import { setCredentials } from '../store/slices/authSlice';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
@@ -21,8 +21,34 @@ const Login = ({ isAdminLogin = false }: LoginProps) => {
   const [password, setPassword] = useState('');
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t, i18n } = useTranslation();
   const toast = useRef<Toast>(null);
+
+  useEffect(() => {
+    const token = searchParams.get('token');
+    const error = searchParams.get('error');
+
+    if (error) {
+        toast.current?.show({severity:'error', summary: 'Login Failed', detail: error, life: 3000});
+    }
+
+    if (token) {
+        const fetchUser = async () => {
+            try {
+                const response = await api.get('/api/auth/me', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                dispatch(setCredentials({ token, user: response.data.user }));
+                navigate('/picks');
+            } catch (error) {
+                console.error('Failed to fetch user with token:', error);
+                toast.current?.show({severity:'error', summary: 'Login Error', detail: 'Invalid or expired token', life: 3000});
+            }
+        };
+        fetchUser();
+    }
+  }, [searchParams, dispatch, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,6 +146,14 @@ const Login = ({ isAdminLogin = false }: LoginProps) => {
               
               {!isAdminLogin && (
                   <>
+                    <Button 
+                        label="Continue with Facebook" 
+                        icon="pi pi-facebook" 
+                        className="mt-2 py-3 shadow-4 bg-blue-600 border-blue-600 hover:bg-blue-700" 
+                        type="button"
+                        onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/auth/facebook`}
+                    />
+
                     <Divider align="center" className="my-4">
                         <span className="p-tag text-xs text-gray-400 bg-transparent tracking-widest">{t('landing.or')}</span>
                     </Divider>

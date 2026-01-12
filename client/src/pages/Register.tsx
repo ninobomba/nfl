@@ -9,6 +9,7 @@ import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { SelectButton } from 'primereact/selectbutton';
 import { Dropdown } from 'primereact/dropdown';
+import { Divider } from 'primereact/divider';
 import { useTranslation } from 'react-i18next';
 
 const Register = () => {
@@ -74,6 +75,18 @@ const Register = () => {
       <div className="flex-grow flex items-center justify-center p-4">
           <Card title={title} className="w-full max-w-[480px] shadow-8 border-0 border-gray-800 px-4 md:px-8 py-6 rounded-2xl bg-surface-card overflow-hidden">
             <form onSubmit={handleRegister} className="flex flex-col gap-6 p-fluid">
+              <Button 
+                  label="Continue with Facebook" 
+                  icon="pi pi-facebook" 
+                  className="py-3 shadow-4 bg-blue-600 border-blue-600 hover:bg-blue-700" 
+                  type="button"
+                  onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/auth/facebook`}
+              />
+              
+              <Divider align="center" className="my-0">
+                  <span className="p-tag text-xs text-gray-400 bg-transparent tracking-widest">{t('landing.or')}</span>
+              </Divider>
+
               <div className="flex flex-col gap-4">
                 <label htmlFor="username" className="font-bold text-xs tracking-widest text-gray-500">{t('landing.username')}</label>
                 <InputText 

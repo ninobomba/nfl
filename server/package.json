@@ -17,6 +17,8 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "@types/passport": "^1.0.17",
+    "@types/passport-facebook": "^3.0.4",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
@@ -25,6 +27,8 @@
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
     "nodemailer": "^7.0.12",
+    "passport": "^0.7.0",
+    "passport-facebook": "^3.0.0",
     "prisma": "^5.22.0",
     "sharp": "^0.34.5",
     "winston": "^3.19.0"

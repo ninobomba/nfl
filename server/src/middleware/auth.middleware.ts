@@ -9,7 +9,7 @@ export interface AuthRequest extends Request {
   };
 }
 
-export const authenticateToken = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -29,7 +29,7 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
         return;
     }
 
-    req.user = {
+    (req as AuthRequest).user = {
         userId: user.id,
         role: user.role
     };
@@ -40,9 +40,10 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
   }
 };
 
-export const isAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
-    console.log(`Checking admin role for user: ${req.user?.userId}, Role: ${req.user?.role}`);
-    if (req.user?.role !== 'ADMIN') {
+export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+    const user = (req as AuthRequest).user;
+    console.log(`Checking admin role for user: ${user?.userId}, Role: ${user?.role}`);
+    if (user?.role !== 'ADMIN') {
         res.status(403).json({ message: 'Admin access required' });
         return;
     }

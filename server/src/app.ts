@@ -4,6 +4,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import logger from './utils/logger.js';
 import { errorHandler } from './middleware/error.middleware.js';
+import passport from './config/passport.js';
 
 import authRoutes from './routes/auth.routes.js';
 import dataRoutes from './routes/data.routes.js';
@@ -23,6 +24,8 @@ app.use(morgan('dev', {
     write: (message) => logger.info(message.trim()),
   },
 }));
+
+app.use(passport.initialize());
 
 app.use('/api/auth', authRoutes);
 app.use('/api', dataRoutes);

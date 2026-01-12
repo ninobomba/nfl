@@ -146,3 +146,51 @@ export const resetPassword = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'SERVER_ERROR' });
     }
 }
+
+export const facebookCallback = async (req: Request, res: Response) => {
+  try {
+    const user = req.user as any; // Passport attaches user to req
+    if (!user) {
+      res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/login?error=AUTH_FAILED`);
+      return;
+    }
+
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
+    
+    // Redirect to frontend with token
+    res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/login?token=${token}`);
+  } catch (error) {
+    console.error('Facebook Callback Error:', error);
+    res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/login?error=SERVER_ERROR`);
+  }
+};
+
+export const getMe = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.userId;
+    if (!userId) {
+      res.status(401).json({ message: 'UNAUTHORIZED' });
+      return;
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        score: true,
+        role: true,
+      }
+    });
+
+    if (!user) {
+      res.status(404).json({ message: 'USER_NOT_FOUND' });
+      return;
+    }
+
+    res.json({ user });
+  } catch (error) {
+    res.status(500).json({ message: 'SERVER_ERROR' });
+  }
+};
