@@ -12,6 +12,7 @@ model User {
   username       String          @unique
   email          String          @unique
   facebookId     String?         @unique
+  googleId       String?         @unique
   password       String
   score          Int             @default(0)
   role           UserRole        @default(USER)

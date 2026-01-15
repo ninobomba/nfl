@@ -187,3 +187,8 @@ h3,
     text-transform: uppercase !important;
     letter-spacing: 0.1em !important;
 }
+
+/* Ensure PrimeIcons font is used for icons, overriding any global font adjustments */
+.pi {
+    font-family: 'primeicons' !important;
+}

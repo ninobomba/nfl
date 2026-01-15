@@ -1,48 +1,12 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '../store/hooks';
-import { setCredentials } from '../store/slices/authSlice';
-import api from '../api/axios';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
-import { InputText } from 'primereact/inputtext';
-import { Password } from 'primereact/password';
-import { Divider } from 'primereact/divider';
 import { Dropdown } from 'primereact/dropdown';
 import { useTranslation } from 'react-i18next';
 
 const Landing = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await api.post('/api/auth/login', {
-        username,
-        password,
-      });
-      const { user } = response.data;
-      dispatch(setCredentials(response.data));
-      if (user.role === 'ADMIN') {
-          navigate('/admin');
-      } else {
-          navigate('/picks');
-      }
-    } catch (error: unknown) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const err = error as any;
-      if (!err.response) {
-          alert('Network error: Is the server running?');
-      } else {
-          const msg = err.response.data?.message || 'Login failed';
-          alert(`Server error: ${msg}`);
-      }
-    }
-  };
 
   const langOptions = [
       { label: 'English (EN)', value: 'en' },
@@ -85,39 +49,13 @@ const Landing = () => {
                     </div>
                 </div>
                 
-                <form onSubmit={handleLogin} className="w-full max-w-sm flex flex-col gap-8 text-left p-fluid mt-2">
-                    <div className="flex flex-col gap-4">
-                        <label htmlFor="username" className="font-black text-xs tracking-[0.2em] text-gray-400 pl-1">{t('landing.username')}</label>
-                        <InputText 
-                            id="username" 
-                            value={username} 
-                            onChange={(e) => setUsername(e.target.value)} 
-                            placeholder={t('landing.username')}
-                            className="p-4 rounded-xl border-gray-700 bg-gray-900 bg-opacity-50"
-                        />
-                    </div>
-                    <div className="flex flex-col gap-4">
-                        <label htmlFor="password" title="password" className="font-black text-xs tracking-[0.2em] text-gray-400 pl-1">{t('landing.password')}</label>
-                        <Password 
-                            id="password" 
-                            value={password} 
-                            onChange={(e) => setPassword(e.target.value)} 
-                            feedback={false} 
-                            placeholder={t('landing.password')}
-                            toggleMask
-                            inputClassName="p-4"
-                            className="rounded-xl border-gray-700 bg-gray-900 bg-opacity-50 overflow-hidden"
-                        />
-                        <div className="text-right mt-1">
-                            <Button label={t('landing.forgotPassword')} link onClick={() => navigate('/forgot-password')} type="button" className="text-xs font-bold p-0 opacity-60" />
-                        </div>
-                    </div>
-                    
-                    <Button label={t('landing.signin')} icon="pi pi-sign-in" className="mt-4 py-4 font-black tracking-widest shadow-6 rounded-xl" />
-                    
-                    <Divider align="center" className="my-4">
-                        <span className="p-tag text-[10px] text-gray-500 bg-transparent tracking-[0.3em] font-black">{t('landing.or')}</span>
-                    </Divider>
+                <div className="w-full max-w-sm flex flex-col gap-4">
+                    <Button 
+                        label={t('landing.signin')} 
+                        icon="pi pi-sign-in" 
+                        className="py-4 font-black tracking-widest shadow-6 rounded-xl" 
+                        onClick={() => navigate('/login')}
+                    />
                     
                     <Button 
                         label={t('landing.register')} 
@@ -126,7 +64,7 @@ const Landing = () => {
                         className="p-button-outlined py-4 font-black tracking-widest rounded-xl"
                         onClick={() => navigate('/register')}
                     />
-                </form>
+                </div>
             </div>
           </Card>
       </div>

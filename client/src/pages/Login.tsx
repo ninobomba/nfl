@@ -146,19 +146,30 @@ const Login = ({ isAdminLogin = false }: LoginProps) => {
               
               {!isAdminLogin && (
                   <>
-                    <Button 
-                        label="Continue with Facebook" 
-                        icon="pi pi-facebook" 
-                        className="mt-2 py-3 shadow-4 bg-blue-600 border-blue-600 hover:bg-blue-700" 
-                        type="button"
-                        onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/auth/facebook`}
-                    />
-
                     <Divider align="center" className="my-4">
                         <span className="p-tag text-xs text-gray-400 bg-transparent tracking-widest">{t('landing.or')}</span>
                     </Divider>
+
+                    <div className="flex flex-col gap-3">
+                        <button 
+                            className="w-full py-3 shadow-md bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 flex justify-center items-center gap-3 transition-colors cursor-pointer" 
+                            type="button"
+                            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/auth/google`}
+                        >
+                            <img src="/images/google-logo.svg" alt="Google" className="w-5 h-5" />
+                            <span className="font-bold">Google</span>
+                        </button>
+                        <button 
+                            className="w-full py-3 shadow-md bg-blue-600 border border-blue-600 rounded-xl text-white hover:bg-blue-700 flex justify-center items-center gap-3 transition-colors cursor-pointer" 
+                            type="button"
+                            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/auth/facebook`}
+                        >
+                            <img src="/images/facebook-logo.svg" alt="Facebook" className="w-5 h-5 bg-white rounded-full p-0.5" />
+                            <span className="font-bold">Facebook</span>
+                        </button>
+                    </div>
                     
-                    <div className="text-center">
+                    <div className="text-center mt-4">
                         <Button 
                             label={t('landing.register')} 
                             link 
