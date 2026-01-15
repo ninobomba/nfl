@@ -3,11 +3,11 @@ import { useAppDispatch } from '../store/hooks';
 import { setCredentials } from '../store/slices/authSlice';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
+import { API_URL } from '../config';
 import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
-import { Divider } from 'primereact/divider';
 import { Dropdown } from 'primereact/dropdown';
 import { Toast } from 'primereact/toast';
 import { useTranslation } from 'react-i18next';
@@ -83,117 +83,146 @@ const Login = ({ isAdminLogin = false }: LoginProps) => {
       { label: 'Español (ES)', value: 'es' }
   ];
 
-  const title = (
-      <div className="flex flex-col items-center gap-8 mb-6">
+  const header = (
+      <div className="flex flex-col items-center gap-4 mb-2 mt-2">
           <img 
             src="/images/nfl-logo-60x80.png" 
             alt="NFL Logo" 
-            className="w-16 h-20"
+            className="w-14 h-auto drop-shadow-lg"
           />
-          <span className="text-3xl font-black italic tracking-tighter text-white">
-              {isAdminLogin ? t('landing.adminPortal') : t('landing.signin')}
-          </span>
+          <div className="text-center">
+            <h1 className="text-2xl font-black italic tracking-tighter text-white m-0">
+                {isAdminLogin ? t('landing.adminPortal') : t('landing.signin')}
+            </h1>
+            {/*<p className="text-gray-500 text-sm mt-1 font-medium tracking-wide">*/}
+            {/*    {t('landing.welcomeBack')}*/}
+            {/*</p>*/}
+          </div>
       </div>
   );
 
   return (
-    <div className="min-h-screen flex flex-col surface-ground font-comfortaa">
+    <div className="min-h-screen flex flex-col bg-[#0f111a] font-comfortaa">
       <Toast ref={toast} />
-      {/* BARRA SUPERIOR FÍSICA (NO FLOTANTE) */}
-      <header className="w-full surface-card border-b border-gray-800 shadow-1 py-2 px-4 md:px-8 flex justify-end items-center z-50">
-          <div className="flex items-center gap-3">
-              <i className="pi pi-globe text-gray-500 text-xs"></i>
+      {/* HEADER */}
+      <header className="w-full border-b border-gray-800/50 p-4 flex justify-end items-center z-50 absolute top-0 right-0 bg-transparent">
+          <div className="flex items-center gap-2 bg-gray-900/50 px-3 py-1 rounded-full border border-gray-800 backdrop-blur-sm">
+              <i className="pi pi-globe text-gray-400 text-xs"></i>
               <Dropdown 
                 value={i18n.language.split('-')[0]} 
                 options={langOptions} 
                 onChange={(e) => i18n.changeLanguage(e.value)} 
-                className="w-12rem border-none bg-transparent p-inputtext-sm font-bold"
+                className="border-none bg-transparent p-0 text-xs font-bold w-24"
+                panelClassName="text-xs"
               />
           </div>
       </header>
 
-      {/* ÁREA DE CONTENIDO */}
+      {/* CONTENT */}
       <div className="flex-grow flex items-center justify-center p-4">
-          <Card title={title} className="w-full max-w-[450px] shadow-lg border-none px-4 py-4">
-            <form onSubmit={handleLogin} className="flex flex-col gap-6 p-fluid">
-              <div className="flex flex-col gap-4">
-                <label htmlFor="username" className="font-bold text-xs text-gray-500">{t('landing.username')}</label>
-                <InputText 
-                    id="username" 
-                    value={username} 
-                    onChange={(e) => setUsername(e.target.value)} 
-                    placeholder={t('landing.username')}
-                    className="p-3"
-                />
-              </div>
-              <div className="flex flex-col gap-4">
-                <label htmlFor="password" title="password" className="font-bold text-xs text-gray-500">{t('landing.password')}</label>
-                <Password 
-                    id="password" 
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)} 
-                    feedback={false} 
-                    placeholder={t('landing.password')}
-                    toggleMask
-                    inputClassName="p-3"
-                />
-                <div className="text-right mt-1">
-                    <Button label={t('landing.forgotPassword')} link onClick={() => navigate('/forgot-password')} type="button" className="text-xs font-bold p-0 opacity-60" />
+          <Card className="w-full max-w-[420px] shadow-2xl border border-gray-800 rounded-2xl bg-[#161b2b] p-2">
+            {header}
+            <div className="px-2 pb-2">
+                <form onSubmit={handleLogin} className="flex flex-col gap-5 p-fluid mt-6">
+                <div className="flex flex-col gap-2">
+                    <span className="p-float-label">
+                        <InputText 
+                            id="username" 
+                            value={username} 
+                            onChange={(e) => setUsername(e.target.value)} 
+                            className="p-3 w-full bg-[#0f111a] border-gray-700 text-white focus:border-blue-500 rounded-xl"
+                        />
+                        <label htmlFor="username" className="text-gray-400">{t('landing.username')}</label>
+                    </span>
                 </div>
-              </div>
-              
-              <Button label={isAdminLogin ? t('landing.adminPortal') : t('landing.signin')} icon="pi pi-sign-in" className="mt-4 py-3 shadow-4" />
-              
-              {!isAdminLogin && (
-                  <>
-                    <Divider align="center" className="my-4">
-                        <span className="p-tag text-xs text-gray-400 bg-transparent tracking-widest">{t('landing.or')}</span>
-                    </Divider>
-
-                    <div className="flex flex-col gap-3">
-                        <button 
-                            className="w-full py-3 shadow-md bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 flex justify-center items-center gap-3 transition-colors cursor-pointer" 
-                            type="button"
-                            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/auth/google`}
-                        >
-                            <img src="/images/google-logo.svg" alt="Google" className="w-5 h-5" />
-                            <span className="font-bold">Google</span>
-                        </button>
-                        <button 
-                            className="w-full py-3 shadow-md bg-blue-600 border border-blue-600 rounded-xl text-white hover:bg-blue-700 flex justify-center items-center gap-3 transition-colors cursor-pointer" 
-                            type="button"
-                            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/auth/facebook`}
-                        >
-                            <img src="/images/facebook-logo.svg" alt="Facebook" className="w-5 h-5 bg-white rounded-full p-0.5" />
-                            <span className="font-bold">Facebook</span>
-                        </button>
-                    </div>
-                    
-                    <div className="text-center mt-4">
+                
+                <div className="flex flex-col gap-2">
+                    <span className="p-float-label">
+                        <Password 
+                            id="password" 
+                            value={password} 
+                            onChange={(e) => setPassword(e.target.value)} 
+                            feedback={false} 
+                            toggleMask
+                            inputClassName="p-3 w-full bg-[#0f111a] border-gray-700 text-white focus:border-blue-500 rounded-xl"
+                            className="w-full"
+                        />
+                        <label htmlFor="password" className="text-gray-400">{t('landing.password')}</label>
+                    </span>
+                    <div className="text-right">
                         <Button 
-                            label={t('landing.register')} 
+                            label={t('landing.forgotPassword')} 
                             link 
-                            onClick={() => navigate('/register')} 
-                            type="button"
-                            className="font-bold"
+                            onClick={() => navigate('/forgot-password')} 
+                            type="button" 
+                            className="text-xs font-bold text-gray-500 hover:text-white p-0" 
                         />
                     </div>
-                  </>
-              )}
+                </div>
+                
+                <Button 
+                    label={isAdminLogin ? t('landing.adminPortal') : t('landing.signin')} 
+                    icon="pi pi-arrow-right" 
+                    iconPos="right"
+                    className="w-full py-3.5 shadow-lg rounded-xl font-bold tracking-wider bg-blue-600 border-none hover:bg-blue-500 transition-all" 
+                />
+                
+                {!isAdminLogin && (
+                    <div className="flex flex-col gap-4 mt-2">
 
-              {isAdminLogin && (
-                  <div className="text-center mt-4">
-                      <Button 
-                        label="Back" 
-                        link 
-                        onClick={() => navigate('/')} 
-                        type="button"
-                        icon="pi pi-arrow-left"
-                        className="font-bold"
-                      />
-                  </div>
-              )}
-            </form>
+                        <div className="relative flex items-center py-2">
+                            <div className="flex-grow border-t border-gray-700/50"></div>
+                            <span className="flex-shrink-0 mx-4 text-xs font-bold text-gray-500 uppercase tracking-widest">{t('landing.or')}</span>
+                            <div className="flex-grow border-t border-gray-700/50"></div>
+                        </div>
+
+                        <div className="flex flex-col gap-3">
+                            <button 
+                                className="w-full h-16 bg-white rounded-xl text-gray-800 font-bold hover:bg-gray-100 transition-all shadow-sm flex items-center justify-center gap-4 cursor-pointer border border-gray-200" 
+                                type="button"
+                                onClick={() => window.location.href = `${API_URL}/api/auth/google`}
+                            >
+                                <img src="/images/google-logo.svg" alt="Google" style={{ width: '24px', height: '24px' }} />
+                                <span className="text-sm tracking-wide font-bold">{t('landing.signInGoogle')}</span>
+                            </button>
+
+                            <button 
+                                className="w-full h-16 bg-[#1877F2] rounded-xl text-white font-bold hover:bg-[#166fe5] transition-all shadow-sm flex items-center justify-center gap-4 cursor-pointer" 
+                                type="button"
+                                onClick={() => window.location.href = `${API_URL}/api/auth/facebook`}
+                            >
+                                <img src="/images/facebook-logo.svg" alt="Facebook" style={{ width: '24px', height: '24px' }} />
+                                <span className="text-sm tracking-wide font-bold">{t('landing.signInFacebook')}</span>
+                            </button>
+                        </div>
+                        
+                        <div className="text-center mt-4">
+                            <span className="text-gray-500 text-xs">{t('landing.noAccount')} </span>
+                            <Button 
+                                label={t('landing.register')} 
+                                link 
+                                onClick={() => navigate('/register')} 
+                                type="button"
+                                className="font-bold text-blue-500 p-0 ml-1"
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {isAdminLogin && (
+                    <div className="text-center mt-4">
+                        <Button 
+                            label={t('landing.backToHome')} 
+                            link 
+                            onClick={() => navigate('/')} 
+                            type="button"
+                            icon="pi pi-arrow-left"
+                            className="font-bold text-gray-500 hover:text-white"
+                        />
+                    </div>
+                )}
+                </form>
+            </div>
           </Card>
       </div>
     </div>

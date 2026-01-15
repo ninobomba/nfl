@@ -24,6 +24,11 @@
     "forgotPassword": "Forgot your password?",
     "title": "Ultimate Challenge",
     "subtitle": "Lottery Challenge",
+    "welcomeBack": "Welcome back, challenger",
+    "signInGoogle": "Sign in with Google",
+    "signInFacebook": "Sign in with Facebook",
+    "backToHome": "Back to Home",
+    "noAccount": "Don't have an account?",
     "reset": {
       "title": "Reset Password",
       "email": "Enter your registered email to receive a recovery key.",

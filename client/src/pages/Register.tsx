@@ -3,6 +3,7 @@ import { useAppDispatch } from '../store/hooks';
 import { setCredentials } from '../store/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import { API_URL } from '../config';
 import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
@@ -80,7 +81,7 @@ const Register = () => {
                   icon="pi pi-facebook" 
                   className="py-3 shadow-4 bg-blue-600 border-blue-600 hover:bg-blue-700" 
                   type="button"
-                  onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/auth/facebook`}
+                  onClick={() => window.location.href = `${API_URL}/api/auth/facebook`}
               />
               
               <Divider align="center" className="my-0">
